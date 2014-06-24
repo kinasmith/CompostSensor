@@ -1,10 +1,8 @@
 #include <JeeLib.h>
-//#include <RF12.h> //from jeelabs.org
-//#include <Ports.h> 
 
 //define temp sensing items
 #define thermistorPin A0 //analog input pin
-#define thermistorNominal 10000
+#define thermistorNominal 10000 
 #define tempNominal 25
 #define numSamples 5
 #define bCoefficient 3950
