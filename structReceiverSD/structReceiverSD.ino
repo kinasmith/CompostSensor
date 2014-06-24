@@ -89,7 +89,7 @@ void setup() {
 
   lcd.begin(16,2); //start the LCD 16char wide 2 lines tall
   //blink the backlight for a second just for shits and giggles
-  for(int i = 0, i < 5; i++) {
+  for(int i = 0; i < 5; i++) {
     lcd.setBacklight(HIGH);
     delay(100);
     lcd.setBacklight(LOW);
