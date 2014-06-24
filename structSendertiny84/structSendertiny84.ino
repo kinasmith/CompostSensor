@@ -10,6 +10,7 @@ kina@kinasmith.com
 TODO:
 -check to see if sleeping is actually working. drawing more power than it should
 ----------------------------------------------------------------------------------------------*/
+
 #include <JeeLib.h>
 
 //define temp sensing items
@@ -148,25 +149,3 @@ float readTemp() {
 
   return steinhart;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
