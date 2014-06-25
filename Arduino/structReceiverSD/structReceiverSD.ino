@@ -12,7 +12,7 @@
  
  Written by Kina Smith - 06/2014
  kina@kinasmith.com
- --insert URL here---
+www.kinasmith.com
  
  Libraries used:
  JeeLib <- https://github.com/jcw/jeelib

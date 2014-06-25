@@ -8,8 +8,5 @@ It uses an Adafruit Datalogger shield with a modified CS Pin to avoid conflictin
 
 The structSender are the sender Nodes, Two versions are provided, which are practically identical currently. One for pushing down into an ATTiny84, and one that is designed to work for a regular Arduino. 
 
-TODO:
-
-get schematics documented of current circuits
-add photos of the current iteration
-make explanatory website for it all
+Some documentation currently lives here: 
+http://kinasmith.com/compost-sensor

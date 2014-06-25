@@ -5,7 +5,7 @@ Compost Sensor
 
 Written by Kina Smith - 06/2014
 kina@kinasmith.com
---insert URL here---
+www.kinasmith.com
 
 TODO:
 -check to see if sleeping is actually working. drawing more power than it should
