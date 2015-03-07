@@ -1,0 +1,464 @@
+{
+  "snapOnDrag" : true,
+  "millVersion" : 1,
+  "version" : 4,
+  "fixturing" : {
+    "spoilboard" : null,
+    "bracket" : null
+  },
+  "plans" : [
+    "6343575C-F8EE-4D08-B2A0-E1272F5FDF63",
+    "6C5D6C0A-38F7-4E33-BA1E-E218B738D68D",
+    "F0D1D392-60F1-469A-8EED-67EA54257C69",
+    "B63F9A87-98A5-4F92-9BFD-8DCFF1C3220F",
+    "4CA5BB58-A307-4F67-9EA0-59D7E3F3DE37",
+    "9651D74F-91D3-4699-A5F9-CEC294369EEE",
+    "6DEADBAE-775F-44EA-8A24-AC615D12B91E",
+    "573AAF03-2C3F-487B-A6AE-1E9CE9E54F68",
+    "9CAA2FE3-DA48-43EF-B320-5F1599498566",
+    "7D545813-6B1E-4DC7-981D-AA5AA2BFE68A",
+    "D9A1BF54-61EA-4D50-866C-1132896501AF",
+    "DA44A696-8610-4BB4-B471-A8F5FEC03F9B"
+  ],
+  "stock" : {
+    "height" : 101.6,
+    "depth" : 1.54,
+    "flipped" : false,
+    "laminate" : "211D8AAC-F38A-48CA-B692-7004D3222719",
+    "offset" : {
+      "y" : 0,
+      "b" : 0,
+      "z" : 0,
+      "x" : 0,
+      "a" : 0,
+      "c" : 0
+    },
+    "width" : 127,
+    "name" : "(unknown)",
+    "zrotation" : 0
+  },
+  "displayUnits" : "mm",
+  "showDimensions" : true,
+  "otherplanVersionName" : "release-build",
+  "currentJobUUID" : null,
+  "tools" : [
+    {
+      "group" : "Endmill",
+      "conductive" : "yes",
+      "flutes" : 2,
+      "name" : "1\/32in Flat End Mill",
+      "profile" : [
+        [
+          3.175,
+          36.5,
+          0,
+          0
+        ],
+        [
+          3.175,
+          9.5,
+          0,
+          -1
+        ],
+        [
+          0.79375,
+          1.5875,
+          0,
+          1
+        ],
+        [
+          0.79375,
+          0,
+          0,
+          1
+        ]
+      ],
+      "uuid" : "FFC3953B-A29D-4C22-8263-975B2722ADBC"
+    },
+    {
+      "group" : "Endmill",
+      "conductive" : "yes",
+      "flutes" : 2,
+      "name" : "1\/32in Flat End Mill",
+      "profile" : [
+        [
+          3.175,
+          36.5,
+          0,
+          0
+        ],
+        [
+          3.175,
+          9.5,
+          0,
+          -1
+        ],
+        [
+          0.79375,
+          1.5875,
+          0,
+          1
+        ],
+        [
+          0.79375,
+          0,
+          0,
+          1
+        ]
+      ],
+      "uuid" : "FFC3953B-A29D-4C22-8263-975B2722ADBC"
+    },
+    {
+      "group" : "Endmill",
+      "conductive" : "yes",
+      "flutes" : 2,
+      "name" : "1\/32in Flat End Mill",
+      "profile" : [
+        [
+          3.175,
+          36.5,
+          0,
+          0
+        ],
+        [
+          3.175,
+          9.5,
+          0,
+          -1
+        ],
+        [
+          0.79375,
+          1.5875,
+          0,
+          1
+        ],
+        [
+          0.79375,
+          0,
+          0,
+          1
+        ]
+      ],
+      "uuid" : "FFC3953B-A29D-4C22-8263-975B2722ADBC"
+    },
+    {
+      "group" : "Endmill",
+      "conductive" : "yes",
+      "flutes" : 2,
+      "name" : "1\/32in Flat End Mill",
+      "profile" : [
+        [
+          3.175,
+          36.5,
+          0,
+          0
+        ],
+        [
+          3.175,
+          9.5,
+          0,
+          -1
+        ],
+        [
+          0.79375,
+          1.5875,
+          0,
+          1
+        ],
+        [
+          0.79375,
+          0,
+          0,
+          1
+        ]
+      ],
+      "uuid" : "FFC3953B-A29D-4C22-8263-975B2722ADBC"
+    },
+    {
+      "group" : "Endmill",
+      "conductive" : "yes",
+      "flutes" : 2,
+      "name" : "1\/32in Flat End Mill",
+      "profile" : [
+        [
+          3.175,
+          36.5,
+          0,
+          0
+        ],
+        [
+          3.175,
+          9.5,
+          0,
+          -1
+        ],
+        [
+          0.79375,
+          1.5875,
+          0,
+          1
+        ],
+        [
+          0.79375,
+          0,
+          0,
+          1
+        ]
+      ],
+      "uuid" : "FFC3953B-A29D-4C22-8263-975B2722ADBC"
+    },
+    {
+      "group" : "Endmill",
+      "conductive" : "yes",
+      "flutes" : 2,
+      "name" : "1\/32in Flat End Mill",
+      "profile" : [
+        [
+          3.175,
+          36.5,
+          0,
+          0
+        ],
+        [
+          3.175,
+          9.5,
+          0,
+          -1
+        ],
+        [
+          0.79375,
+          1.5875,
+          0,
+          1
+        ],
+        [
+          0.79375,
+          0,
+          0,
+          1
+        ]
+      ],
+      "uuid" : "FFC3953B-A29D-4C22-8263-975B2722ADBC"
+    },
+    {
+      "group" : "Endmill",
+      "conductive" : "yes",
+      "flutes" : 2,
+      "name" : "1\/32in Flat End Mill",
+      "profile" : [
+        [
+          3.175,
+          36.5,
+          0,
+          0
+        ],
+        [
+          3.175,
+          9.5,
+          0,
+          -1
+        ],
+        [
+          0.79375,
+          1.5875,
+          0,
+          1
+        ],
+        [
+          0.79375,
+          0,
+          0,
+          1
+        ]
+      ],
+      "uuid" : "FFC3953B-A29D-4C22-8263-975B2722ADBC"
+    },
+    {
+      "group" : "Endmill",
+      "conductive" : "yes",
+      "flutes" : 2,
+      "name" : "1\/32in Flat End Mill",
+      "profile" : [
+        [
+          3.175,
+          36.5,
+          0,
+          0
+        ],
+        [
+          3.175,
+          9.5,
+          0,
+          -1
+        ],
+        [
+          0.79375,
+          1.5875,
+          0,
+          1
+        ],
+        [
+          0.79375,
+          0,
+          0,
+          1
+        ]
+      ],
+      "uuid" : "FFC3953B-A29D-4C22-8263-975B2722ADBC"
+    },
+    {
+      "group" : "Endmill",
+      "conductive" : "yes",
+      "flutes" : 2,
+      "name" : "1\/64in Flat End Mill",
+      "profile" : [
+        [
+          3.175,
+          36.5,
+          0,
+          0
+        ],
+        [
+          3.175,
+          9.5,
+          0,
+          -1
+        ],
+        [
+          0.396875,
+          0.79375,
+          0,
+          1
+        ],
+        [
+          0.396875,
+          0,
+          0,
+          1
+        ]
+      ],
+      "uuid" : "3381ABD5-760A-4AB8-A220-755161C1B770"
+    },
+    {
+      "group" : "Endmill",
+      "conductive" : "yes",
+      "flutes" : 2,
+      "name" : "1\/64in Flat End Mill",
+      "profile" : [
+        [
+          3.175,
+          36.5,
+          0,
+          0
+        ],
+        [
+          3.175,
+          9.5,
+          0,
+          -1
+        ],
+        [
+          0.396875,
+          0.79375,
+          0,
+          1
+        ],
+        [
+          0.396875,
+          0,
+          0,
+          1
+        ]
+      ],
+      "uuid" : "3381ABD5-760A-4AB8-A220-755161C1B770"
+    },
+    {
+      "group" : "Endmill",
+      "conductive" : "yes",
+      "flutes" : 2,
+      "name" : "1\/64in Flat End Mill",
+      "profile" : [
+        [
+          3.175,
+          36.5,
+          0,
+          0
+        ],
+        [
+          3.175,
+          9.5,
+          0,
+          -1
+        ],
+        [
+          0.396875,
+          0.79375,
+          0,
+          1
+        ],
+        [
+          0.396875,
+          0,
+          0,
+          1
+        ]
+      ],
+      "uuid" : "3381ABD5-760A-4AB8-A220-755161C1B770"
+    },
+    {
+      "group" : "Endmill",
+      "conductive" : "yes",
+      "flutes" : 2,
+      "name" : "1\/64in Flat End Mill",
+      "profile" : [
+        [
+          3.175,
+          36.5,
+          0,
+          0
+        ],
+        [
+          3.175,
+          9.5,
+          0,
+          -1
+        ],
+        [
+          0.396875,
+          0.79375,
+          0,
+          1
+        ],
+        [
+          0.396875,
+          0,
+          0,
+          1
+        ]
+      ],
+      "uuid" : "3381ABD5-760A-4AB8-A220-755161C1B770"
+    }
+  ],
+  "showMotionPlan" : true,
+  "otherplanVersion" : "0.14.3",
+  "stepSize" : 1,
+  "laminates" : [
+    {
+      "uuid" : "211D8AAC-F38A-48CA-B692-7004D3222719",
+      "group" : "Circuit Board",
+      "maxDepth" : 1.8,
+      "name" : "Single-Sided FR-1 L2",
+      "minDepth" : 1,
+      "layers" : [
+        {
+          "fixed" : 0.1,
+          "material" : "copper"
+        },
+        {
+          "float" : 1.44,
+          "material" : "phenolic"
+        }
+      ]
+    }
+  ]
+}
