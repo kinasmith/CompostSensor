@@ -1,7 +1,10 @@
+#include <SD.h>
+#include <LiquidTWI.h>
+#include <Wire.h>
 #include <RFM69.h>
 #include <SPI.h>
 #include <SoftwareSerial.h>
-#include "floatToString.h"  //set to whatever is the location of floatToStrig
+#include "floatToString.h" 
 
 #define NODEID      1
 #define NETWORKID   100
@@ -14,9 +17,8 @@
 //define FONA pins
 #define FONA_RX 3 //comms
 #define FONA_TX 4 //comms
-#define FONA_RST 5  //resets board
-#define FONA_KEY 6 //powers board down
-#define FONA_PS 7 //status pin. Is the board on or not?
+#define FONA_KEY 5 //powers board down
+#define FONA_PS 6 //status pin. Is the board on or not?
 
 RFM69 radio;
 SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX); //begin Software Serial
