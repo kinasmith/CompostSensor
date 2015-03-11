@@ -4,7 +4,7 @@
 #include <Wire.h>
 #include <SHT2x.h>
 
-#define NODEID      11
+#define NODEID      10
 #define NETWORKID   100
 #define GATEWAYID   1
 #define FREQUENCY   RF69_433MHZ //Match this with the version of your Moteino! (others: RF69_433MHZ, RF69_868MHZ)
@@ -58,7 +58,7 @@ void loop() {
     payload.voltage = checkBatteryVoltage();
     
     payload.temp = radio.readTemperature(-1);
-    payload.humidity = 0.0;
+    payload.humidity = 0.7;
     /*
     payload.humidity = 0;
     payload.temp = 0;

@@ -184,9 +184,8 @@ void loop() {
     if (reading != buttonState) {
       buttonState = reading;
 
-      if (buttonState == LOW) { //only do a thing if the button is LOW 
-      //this creates action on a falling edge, our button is held high, 
-      //so will trigger when the button is pressed, NOT when it is released
+      if (buttonState == LOW) { //only do a thing if the button is LOW: this creates action on a falling edge, our button is held high, 
+        lcd.clear(); //clear LCD Screen
         buttonPushCounter++; //increment the pushCounter
         buttonPushCounter %= numNodes; //if the push counter is greater than node#, roll back to 0
         Serial.println(buttonPushCounter);
