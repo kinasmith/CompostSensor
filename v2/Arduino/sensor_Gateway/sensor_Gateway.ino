@@ -29,7 +29,7 @@ SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX); //begin Software Seria
 
 /*==============|| FONA ||==============*/
 String response; //globaly accessable response from AT commands (how do you make a function that returns a String?)
-unsigned long Reporting = 60000*15;  // Time between uploads  //900 000 is 15 minutes
+unsigned long Reporting = 60000*2;  // Time between uploads  //900 000 is 15 minutes
 unsigned long LastReporting = 0;  // When did we last send data
 
 /*==============|| Data.Sparkfun ||==============*/
@@ -61,6 +61,7 @@ long lastDebounceTime = 0;
 long debounceDelay = 50;
 long lcdBacklightLastReporting = 0;
 bool lcdBacklight;
+bool gsmActive = 0;
 
 /*==============|| RFM69 ||==============*/
 byte ackCount=0;
@@ -89,16 +90,10 @@ void setup() {
 }
 
 void loop() {
-  /*==============|| RADIO Recieve ||==============*/
-  if (radio.receiveDone()) {
-    radioReceive();
-    if (radio.ACKRequested()) {
-      ACKsend();
-    }
-    Blink(LED,3);
-  }
   /*==============|| Make GET Request ||==============*/
   if (LastReporting + Reporting < millis()) {
+    lcd.setBacklight(1);
+    radio.sleep();
     turnOnFONA(); //turn on board
     delay(10000); //delay for 10sec. NOTE: NEEDS to be longer than 3 seconds, 10 works great.
     setupGPRS(); //turn on GPRS, set APN, etc. 
@@ -107,46 +102,58 @@ void loop() {
     turnOffFONA(); //turn off module
     LastReporting = millis();
   }
-  /*==============|| Button Input ||==============*/
-  int reading = digitalRead(buttonPin); //read button pin
-  if (reading != lastButtonState) { //if switch changed
-    lastDebounceTime = millis(); //reset debounce timer
-  } 
-    if ((millis() - lastDebounceTime) > debounceDelay) { // check Debounce Timer:
-    if (reading != buttonState) { //if the button state has changed:
-      buttonState = reading;
-      if (buttonState == 0) { //only do a thing if the button is LOW 
-        lcd.clear(); //clear LCD on every button press
-        if(lcdBacklight == 1) {
-          buttonPushCounter++; //increment the pushCounter
-          buttonPushCounter %= NUM_NODES; //if the push counter is greater than node#, roll back to 0
-        } else {
-          lcd.setBacklight(1);
-          lcdBacklight = 1;
-        }
-        lcdBacklightLastReporting = millis();
-      }  
+
+  if(!gsmActive) {
+  /*==============|| RADIO Recieve ||==============*/
+  if (radio.receiveDone()) {
+    radioReceive();
+    if (radio.ACKRequested()) {
+      ACKsend();
     }
+    Blink(LED,3);
   }
-  lastButtonState = reading; //save the reading for next time through the loop
+
+  /*==============|| Button Input ||==============*/
+    int reading = digitalRead(buttonPin); //read button pin
+    if (reading != lastButtonState) { //if switch changed
+      lastDebounceTime = millis(); //reset debounce timer
+    } 
+      if ((millis() - lastDebounceTime) > debounceDelay) { // check Debounce Timer:
+      if (reading != buttonState) { //if the button state has changed:
+        buttonState = reading;
+        if (buttonState == 0) { //only do a thing if the button is LOW 
+          lcd.clear(); //clear LCD on every button press
+          if(lcdBacklight == 1) {
+            buttonPushCounter++; //increment the pushCounter
+            buttonPushCounter %= NUM_NODES; //if the push counter is greater than node#, roll back to 0
+          } else {
+            lcd.setBacklight(1);
+            lcdBacklight = 1;
+          }
+          lcdBacklightLastReporting = millis();
+        }  
+      }
+    }
+    lastButtonState = reading; //save the reading for next time through the loop
 
   /*==============|| Update Display ||==============*/
-  if(lcdLastReporting + lcdReporting < millis()) {
-    Serial.println("lcd Update");
-    lcd.setCursor(0,0); //sets cursor to the upper left corner to start
-    lcd.print("Sensor#"); //prints that string
-    lcd.print(":");
-    lcd.print(" ");
-    lcd.print(buttonPushCounter+1); //prints currently viewed sensor number
-    lcd.setCursor(0,1); //moves cursor to second line
-    lcd.print(dataArray[buttonPushCounter][2]); //print TEMP
-    lcd.print(" ");
-    lcd.print(dataArray[buttonPushCounter][3]); //print Humidity: g/m^3
-    lcd.print(" ");
-    lcd.print(dataArray[buttonPushCounter][4]); //print Battery Voltage
-    lcdLastReporting = millis();
+    if(lcdLastReporting + lcdReporting < millis()) {
+   //   Serial.println("lcd Update");
+      lcd.setCursor(0,0); //sets cursor to the upper left corner to start
+      lcd.print("#"); //prints that string
+      lcd.print(":");
+      lcd.print(int(dataArray[buttonPushCounter][0])); //prints currently viewed sensor number
+      lcd.print(" ");
+      lcd.print(int(dataArray[buttonPushCounter][1])); //uptime counter
+      lcd.setCursor(0,1); //moves cursor to second line
+      lcd.print(dataArray[buttonPushCounter][2]); //print TEMP
+      lcd.print(" ");
+      lcd.print(dataArray[buttonPushCounter][3]); //print Humidity: g/m^3
+      lcd.print(" ");
+      lcd.print(dataArray[buttonPushCounter][4]); //print Battery Voltage
+      lcdLastReporting = millis();
+    }
   }
-
   if(lcdBacklightLastReporting + 10000 < millis()) {
     lcd.setBacklight(0);
     lcdBacklight = 0;
@@ -155,7 +162,7 @@ void loop() {
 
 void radioReceive() {
   if(radio.DATALEN != sizeof(Payload)) {
-    Serial.print("Invalid payload received, not matching Payload struct!");
+   // Serial.print("Invalid payload received, not matching Payload struct!");
   }
   else {
     theData = *(Payload*)radio.DATA; //assume radio.DATA actually contains our struct and not something else
@@ -192,6 +199,7 @@ void Blink(byte PIN, int DELAY_MS) {
   digitalWrite(PIN,LOW);
 }
 void doHTTP() { //Make HTTP GET request and then close out GPRS connection
+  lcdprint("DO HTTP");
  // Serial.println("HTTP BEGUN!");
  // Serial.print("HTTPINIT: ");
   //this checks if it is on. If it is, it's turns it off then back on again. (This Is probably not needed. )
@@ -228,6 +236,7 @@ void doHTTP() { //Make HTTP GET request and then close out GPRS connection
   }
 }
 void doGETRequest() {
+  lcdprint("DO GET REQUEST");
   //for each NODE listen above...
   for(int i=0; i < NUM_NODES; i++) { 
   //  Serial.print("First value of Array is: "); Serial.println(dataArray[i][0]);
@@ -258,6 +267,7 @@ void doGETRequest() {
   }
 }
 boolean sendURL() { //builds url for Sparkfun GET Request, sends request and waits for reponse
+  lcdprint("SEND URL");
   int complete = 0;
   char c;
   String content;
@@ -307,6 +317,7 @@ boolean sendURL() { //builds url for Sparkfun GET Request, sends request and wai
   else return 0;
 }
 void setupGPRS() { //all the commands to setup a GPRS context and get ready for HTTP command
+  lcdprint("SETUP GPRS");
   //the sendATCommand sends the command to the FONA and waits until the recieves a response before continueing on. 
   //Serial.print("disable echo: ");
   if(sendATCommand("ATE0")) { //disable local echo
@@ -362,22 +373,30 @@ boolean sendATCommand(char Command[]) { //Send an AT command and wait for a resp
   else return 0; //otherwise don't (this will trigger if the command times out) 
 }
 void turnOnFONA() { //turns FONA ON
+    gsmActive = 1;
     if(!digitalRead(FONA_PS)) { //Check if it's On already. LOW is off, HIGH is ON.
       //  Serial.print("FONA was OFF, Powering ON: ");
-        digitalWrite(FONA_KEY,LOW); //pull down power set pin
-        unsigned long KeyPress = millis(); 
-        while(KeyPress + keyTime >= millis()) {} //wait two seconds
-        digitalWrite(FONA_KEY,HIGH); //pull it back up again
+      lcdprint("FONA ON");
+      digitalWrite(FONA_KEY,LOW); //pull down power set pin
+      unsigned long KeyPress = millis(); 
+      while(KeyPress + keyTime >= millis()) {} //wait two seconds
+      digitalWrite(FONA_KEY,HIGH); //pull it back up again
        // Serial.println("FONA Powered Up");
     }// else Serial.println("FONA Already On, Did Nothing");
 }
 void turnOffFONA() { //does the opposite of turning the FONA ON (ie. OFF)
     if(digitalRead(FONA_PS)) { //check if FONA is OFF
-      //  Serial.print("FONA was ON, Powering OFF: "); 
-        digitalWrite(FONA_KEY,LOW);
-        unsigned long KeyPress = millis();
-        while(KeyPress + keyTime >= millis()) {}
-        digitalWrite(FONA_KEY,HIGH);
+      //  Serial.print("FONA was ON, Powering OFF: ");
+      lcdprint("FONA OFF"); 
+      digitalWrite(FONA_KEY,LOW);
+      unsigned long KeyPress = millis();
+      while(KeyPress + keyTime >= millis()) {}
+      digitalWrite(FONA_KEY,HIGH);
        // Serial.println("FONA is Powered Down");
-    }// else Serial.println("FONA is already off, did nothing.");
+    }
+    gsmActive = 0;// else Serial.println("FONA is already off, did nothing.");
+}
+void lcdprint(String arg){
+  lcd.clear();
+  lcd.print(arg);
 }

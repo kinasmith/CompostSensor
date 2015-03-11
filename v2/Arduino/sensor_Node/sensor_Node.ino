@@ -14,7 +14,7 @@
 #define ACK_TIME    50  // # of ms to wait for an ack
 #define NB_ATTEMPTS_ACK 5 //number of attempts to try before giving up
 
-int TRANSMITPERIOD = 20000; //transmit a packet to gateway so often (in ms) (one minute)
+int TRANSMITPERIOD = 30000; //transmit a packet to gateway so often (in ms) (one minute)
 int TRANSMITPERIOD_MINUTES = 1;
 float batteryVoltage;
 byte sendSize=0;
