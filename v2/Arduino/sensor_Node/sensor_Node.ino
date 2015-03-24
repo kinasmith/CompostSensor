@@ -4,7 +4,7 @@
 #include <Wire.h>
 #include <SHT2x.h>
 
-#define NODEID      11
+#define NODEID      12
 #define NETWORKID   100
 #define GATEWAYID   1
 #define FREQUENCY   RF69_433MHZ //Match this with the version of your Moteino! (others: RF69_433MHZ, RF69_868MHZ)
@@ -14,11 +14,12 @@
 #define ACK_TIME    50  // # of ms to wait for an ack
 #define NB_ATTEMPTS_ACK 5 //number of attempts to try before giving up
 
-int TRANSMITPERIOD = 30000; //transmit a packet to gateway so often (in ms) (one minute)
-int TRANSMITPERIOD_MINUTES = 1;
+int TRANSMITPERIOD = 60000; //transmit a packet to gateway so often (in ms) (one minute)
+int TRANSMITPERIOD_MINUTES = 10;
 float batteryVoltage;
 byte sendSize=0;
 boolean requestACK = true;
+int numOfSends = 0;
 RFM69 radio;
 
 ISR(WDT_vect) { Sleepy::watchdogEvent(); }
@@ -54,7 +55,7 @@ void loop() {
     float rh =  SHT2x.GetHumidity();
     float ah = massOfWater(t,rh);
     payload.nodeId = NODEID;
-    payload.uptime = millis()/1000;
+    payload.uptime = numOfSends;
     payload.temp = t;
     payload.humidity = ah;
     //payload.abshumid = ah;
@@ -81,6 +82,7 @@ void loop() {
             Serial.print(" ok!");
             flag_ACK_received = true;
             Blink(LED, 100);
+            numOfSends++;
         } else {
             //figure out a way to resend at a higher power
             //radio.setPowerLevel(31);
@@ -95,7 +97,7 @@ void loop() {
             Blink(LED, 100);
             delay(100);
             nAttempt++;
-            Sleepy::loseSomeTime(5000);
+            Sleepy::loseSomeTime(30000); //wait 30 seconds
         }
     }
     Serial.println();

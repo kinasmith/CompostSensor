@@ -29,7 +29,7 @@ SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX); //begin Software Seria
 
 /*==============|| FONA ||==============*/
 String response; //globaly accessable response from AT commands (how do you make a function that returns a String?)
-unsigned long Reporting = 60000*2;  // Time between uploads  //900 000 is 15 minutes
+unsigned long Reporting = 60000*15;  // Time between uploads  //900 000 is 15 minutes
 unsigned long LastReporting = 0;  // When did we last send data
 
 /*==============|| Data.Sparkfun ||==============*/
@@ -342,6 +342,7 @@ void setupGPRS() { //all the commands to setup a GPRS context and get ready for 
   }
  // Serial.print("Set APN: ");
   if(sendATCommand("AT+SAPBR=3,1,\"APN\",\"att.mvno\"")){ //sets APN for transaction
+  //if(sendATCommand("AT+SAPBR=3,1,\"APN\",\"epc.tmobile.com\"")){ //sets APN for transaction
   //  Serial.println(response);
   }
   if(sendATCommand("AT+SAPBR=1,1")) { //Open Bearer
