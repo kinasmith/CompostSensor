@@ -4,6 +4,8 @@
 #include <SPI.h>
 #include <SoftwareSerial.h>
 #include "floatToString.h" 
+#include <jeelib-sleepy.h>
+//#include <Bounce2.h>
 
 #define NODEID      1
 #define NETWORKID   100
@@ -29,7 +31,7 @@ SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX); //begin Software Seria
 
 /*==============|| FONA ||==============*/
 String response; //globaly accessable response from AT commands (how do you make a function that returns a String?)
-unsigned long Reporting = 60000*15;  // Time between uploads  //900 000 is 15 minutes
+unsigned long Reporting = 60000*5;  // Time between uploads  //900 000 is 15 minutes
 unsigned long LastReporting = 0;  // When did we last send data
 
 /*==============|| Data.Sparkfun ||==============*/
@@ -75,7 +77,6 @@ typedef struct {
 } Payload;
 Payload theData;
 
-
 void setup() {
   pinMode(FONA_PS, INPUT); 
   pinMode(FONA_KEY,OUTPUT); 
@@ -90,55 +91,42 @@ void setup() {
 }
 
 void loop() {
-  /*==============|| Make GET Request ||==============*/
+    /*==============|| Make GET Request ||==============*/
+  /*
   if (LastReporting + Reporting < millis()) {
     lcd.setBacklight(1);
-    radio.sleep();
+    //radio.sleep();
     turnOnFONA(); //turn on board
     delay(10000); //delay for 10sec. NOTE: NEEDS to be longer than 3 seconds, 10 works great.
-    setupGPRS(); //turn on GPRS, set APN, etc. 
-    doHTTP(); //Make Get request and shut down GPRS context.
+   // setupGPRS(); //turn on GPRS, set APN, etc. 
+   // doHTTP(); //Make Get request and shut down GPRS context.
     delay(2000); //This delay is also pretty important. Give it time to finish any operations BEFORE powering it down.
     turnOffFONA(); //turn off module
     LastReporting = millis();
   }
-
+*/
   if(!gsmActive) {
-  /*==============|| RADIO Recieve ||==============*/
-  if (radio.receiveDone()) {
-    radioReceive();
-    if (radio.ACKRequested()) {
-      ACKsend();
+    /*==============|| RADIO Recieve ||==============*/
+    if (radio.receiveDone()) {
+      radioReceive();
+      if (radio.ACKRequested()) {
+        ACKsend();
+      }
+      Blink(LED,3);
     }
-    Blink(LED,3);
+    radio.receiveDone();
+    delay(50);
+
+    buttonInput();
+    updateDisplay();
   }
 
-  /*==============|| Button Input ||==============*/
-    int reading = digitalRead(buttonPin); //read button pin
-    if (reading != lastButtonState) { //if switch changed
-      lastDebounceTime = millis(); //reset debounce timer
-    } 
-      if ((millis() - lastDebounceTime) > debounceDelay) { // check Debounce Timer:
-      if (reading != buttonState) { //if the button state has changed:
-        buttonState = reading;
-        if (buttonState == 0) { //only do a thing if the button is LOW 
-          lcd.clear(); //clear LCD on every button press
-          if(lcdBacklight == 1) {
-            buttonPushCounter++; //increment the pushCounter
-            buttonPushCounter %= NUM_NODES; //if the push counter is greater than node#, roll back to 0
-          } else {
-            lcd.setBacklight(1);
-            lcdBacklight = 1;
-          }
-          lcdBacklightLastReporting = millis();
-        }  
-      }
-    }
-    lastButtonState = reading; //save the reading for next time through the loop
+}
 
+void updateDisplay() {
   /*==============|| Update Display ||==============*/
-    if(lcdLastReporting + lcdReporting < millis()) {
-   //   Serial.println("lcd Update");
+  if(lcdLastReporting + lcdReporting < millis()) {
+      //   Serial.println("lcd Update");
       lcd.setCursor(0,0); //sets cursor to the upper left corner to start
       lcd.print("#"); //prints that string
       lcd.print(":");
@@ -153,13 +141,35 @@ void loop() {
       lcd.print(dataArray[buttonPushCounter][4]); //print Battery Voltage
       lcdLastReporting = millis();
     }
-  }
   if(lcdBacklightLastReporting + 10000 < millis()) {
     lcd.setBacklight(0);
     lcdBacklight = 0;
   }
 }
-
+void buttonInput() {
+  /*==============|| Button Input ||==============*/
+  int reading = digitalRead(buttonPin); //read button pin
+  if (reading != lastButtonState) { //if switch changed
+    lastDebounceTime = millis(); //reset debounce timer
+  } 
+    if ((millis() - lastDebounceTime) > debounceDelay) { // check Debounce Timer:
+    if (reading != buttonState) { //if the button state has changed:
+      buttonState = reading;
+      if (buttonState == 0) { //only do a thing if the button is LOW 
+        lcd.clear(); //clear LCD on every button press
+        if(lcdBacklight == 1) {
+          buttonPushCounter++; //increment the pushCounter
+          buttonPushCounter %= NUM_NODES; //if the push counter is greater than node#, roll back to 0
+        } else {
+          lcd.setBacklight(1);
+          lcdBacklight = 1;
+        }
+        lcdBacklightLastReporting = millis();
+      }  
+    }
+  }
+  lastButtonState = reading; //save the reading for next time through the loop
+}
 void radioReceive() {
   if(radio.DATALEN != sizeof(Payload)) {
    // Serial.print("Invalid payload received, not matching Payload struct!");

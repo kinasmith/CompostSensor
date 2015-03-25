@@ -1,10 +1,10 @@
 #include <RFM69.h>
 #include <SPI.h>
-#include <Ports.h>
+#include <jeelib-sleepy.h>
 #include <Wire.h>
 #include <SHT2x.h>
 
-#define NODEID      10
+#define NODEID      11
 #define NETWORKID   100
 #define GATEWAYID   1
 #define FREQUENCY   RF69_433MHZ //Match this with the version of your Moteino! (others: RF69_433MHZ, RF69_868MHZ)
@@ -13,8 +13,9 @@
 #define SERIAL_BAUD 9600
 #define ACK_TIME    50  // # of ms to wait for an ack
 #define NB_ATTEMPTS_ACK 5 //number of attempts to try before giving up
+#define FAIL_WAIT_TIME 1000
 
-int TRANSMITPERIOD = 10000; //transmit a packet to gateway so often (in ms)
+int TRANSMITPERIOD =5000; //transmit a packet to gateway so often (in ms)
 int TRANSMITPERIOD_MINUTES = 1;
 float batteryVoltage;
 byte sendSize=0;
@@ -97,7 +98,7 @@ void loop() {
             Blink(LED, 100);
             delay(100);
             nAttempt++;
-            Sleepy::loseSomeTime(30000); //wait 30 seconds
+            Sleepy::loseSomeTime(FAIL_WAIT_TIME); //wait 30 seconds
         }
     }
     Serial.println();
