@@ -4,6 +4,7 @@
 #include <SPI.h>
 #include <SoftwareSerial.h>
 #include "floatToString.h" 
+#include <Bounce2.h>
 
 #define NODEID      1
 #define NETWORKID   100
@@ -22,10 +23,12 @@
 #define NUM_FIELDS 6
 #define NUM_NODES 5
 
+#define BUTTON_PIN 7
+
 LiquidTWI lcd(0);
 RFM69 radio;
 SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX); //begin Software Serial
-
+Bounce debouncer = Bounce(); 
 
 /*==============|| FONA ||==============*/
 String response; //globaly accessable response from AT commands (how do you make a function that returns a String?)
@@ -50,18 +53,13 @@ float* dataArray[]={&node00[0],&node01[0],&node02[0],&node03[0],&node04[0]};
 char buffer[25]; //for floatToString();
 
 /*==============|| Display & Buttons ||==============*/
-const int buttonPin = 7; //button input for scrolling variables
+
 unsigned long lcdReporting = 500; //time between updates
 unsigned long lcdLastReporting = 0; 
-byte buttonPushCounter = 0; //which sensor value is being displayed
-byte buttonState = 0; //state of button
-byte lastButtonState = 0; //last state of button (allows for one-shot triggers)
-//for debouncing the button
-long lastDebounceTime = 0;
-long debounceDelay = 50;
 long lcdBacklightLastReporting = 0;
 bool lcdBacklight;
 bool gsmActive = 0;
+byte buttonPushCounter = 0; //which sensor value is being displayed
 
 /*==============|| RFM69 ||==============*/
 byte ackCount=0;
@@ -83,7 +81,10 @@ void setup() {
   fonaSS.begin(9600);
   lcd.begin(16,2);
   lcd.setBacklight(1);
-  pinMode(buttonPin, INPUT_PULLUP); //set button to input
+  //pinMode(buttonPin, INPUT_PULLUP); 
+  pinMode(BUTTON_PIN,INPUT_PULLUP); //set button to input
+  debouncer.attach(BUTTON_PIN);
+  debouncer.interval(5); // interval in ms
   radio.initialize(FREQUENCY,NODEID,NETWORKID);
   radio.setHighPower(); //uncomment only for RFM69HW!
   radio.encrypt(KEY);
@@ -93,49 +94,46 @@ void loop() {
   /*==============|| Make GET Request ||==============*/
   if (LastReporting + Reporting < millis()) {
     lcd.setBacklight(1);
-    radio.sleep();
-    turnOnFONA(); //turn on board
+    radio.sleep(); //disable radio while updating GSM to save a little power
+    turnOnFONA(); //turn on board (sets gsmActive to 1)
     delay(10000); //delay for 10sec. NOTE: NEEDS to be longer than 3 seconds, 10 works great.
     setupGPRS(); //turn on GPRS, set APN, etc. 
     doHTTP(); //Make Get request and shut down GPRS context.
     delay(2000); //This delay is also pretty important. Give it time to finish any operations BEFORE powering it down.
-    turnOffFONA(); //turn off module
+    turnOffFONA(); //turn off module (sets gsmActive to 0)
     LastReporting = millis();
   }
 
   if(!gsmActive) {
   /*==============|| RADIO Recieve ||==============*/
-  if (radio.receiveDone()) {
-    radioReceive();
-    if (radio.ACKRequested()) {
-      ACKsend();
-    }
-    Blink(LED,3);
-  }
-
-  /*==============|| Button Input ||==============*/
-    int reading = digitalRead(buttonPin); //read button pin
-    if (reading != lastButtonState) { //if switch changed
-      lastDebounceTime = millis(); //reset debounce timer
-    } 
-      if ((millis() - lastDebounceTime) > debounceDelay) { // check Debounce Timer:
-      if (reading != buttonState) { //if the button state has changed:
-        buttonState = reading;
-        if (buttonState == 0) { //only do a thing if the button is LOW 
-          lcd.clear(); //clear LCD on every button press
-          if(lcdBacklight == 1) {
-            buttonPushCounter++; //increment the pushCounter
-            buttonPushCounter %= NUM_NODES; //if the push counter is greater than node#, roll back to 0
-          } else {
-            lcd.setBacklight(1);
-            lcdBacklight = 1;
-          }
-          lcdBacklightLastReporting = millis();
-        }  
+    if (radio.receiveDone()) {
+      radioReceive();
+      if (radio.ACKRequested()) {
+        ACKsend();
       }
+      Blink(LED,3);
     }
-    lastButtonState = reading; //save the reading for next time through the loop
+    updateButton();
+    updateDisplay();
+  }
+}
 
+void updateButton() {
+  /*==============|| Button Input ||==============*/
+  debouncer.update();
+  if(debouncer.fell()) {
+    lcd.clear(); //clear LCD on every button press
+    if(lcdBacklight == 1) {
+      buttonPushCounter++; //increment the pushCounter
+      buttonPushCounter %= NUM_NODES; //if the push counter is greater than node#, roll back to 0
+    } else {
+      lcd.setBacklight(1);
+      lcdBacklight = 1;
+    }
+    lcdBacklightLastReporting = millis();
+  }
+}
+void updateDisplay() {
   /*==============|| Update Display ||==============*/
     if(lcdLastReporting + lcdReporting < millis()) {
    //   Serial.println("lcd Update");
@@ -153,13 +151,11 @@ void loop() {
       lcd.print(dataArray[buttonPushCounter][4]); //print Battery Voltage
       lcdLastReporting = millis();
     }
-  }
   if(lcdBacklightLastReporting + 10000 < millis()) {
     lcd.setBacklight(0);
     lcdBacklight = 0;
   }
 }
-
 void radioReceive() {
   if(radio.DATALEN != sizeof(Payload)) {
    // Serial.print("Invalid payload received, not matching Payload struct!");
@@ -397,7 +393,7 @@ void turnOffFONA() { //does the opposite of turning the FONA ON (ie. OFF)
     }
     gsmActive = 0;// else Serial.println("FONA is already off, did nothing.");
 }
-void lcdprint(String arg){
+void lcdprint(String toPrint){
   lcd.clear();
-  lcd.print(arg);
+  lcd.print(toPrint);
 }

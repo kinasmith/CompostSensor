@@ -4,7 +4,7 @@
 #include <Wire.h>
 #include <SHT2x.h>
 
-#define NODEID      12
+#define NODEID      11
 #define NETWORKID   100
 #define GATEWAYID   1
 #define FREQUENCY   RF69_433MHZ //Match this with the version of your Moteino! (others: RF69_433MHZ, RF69_868MHZ)
