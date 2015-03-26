@@ -1,6 +1,6 @@
 #include <RFM69.h>
 #include <SPI.h>
-#include <Ports.h>
+#include <jeelib-sleepy.h>
 #include <Wire.h>
 #include <SHT2x.h>
 
