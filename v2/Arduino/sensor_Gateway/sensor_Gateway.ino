@@ -5,12 +5,13 @@
 #include <SoftwareSerial.h>
 #include "floatToString.h" 
 #include <Bounce2.h>
+#include <SD.h>
 
 #define NODEID      1
 #define NETWORKID   100
 #define FREQUENCY   RF69_433MHZ //Match this with the version of your Moteino! (others: RF69_433MHZ, RF69_868MHZ)
 #define KEY         "thisIsEncryptKey" //has to be same 16 characters/bytes on all nodes, not more not less!
-#define LED         9
+#define LED         10
 #define SERIAL_BAUD 9600
 #define ACK_TIME    30  // # of ms to wait for an ack
 
@@ -24,15 +25,16 @@
 #define NUM_NODES 5
 
 #define BUTTON_PIN 7
+#define CHIP_SELECT 9
 
 LiquidTWI lcd(0);
 RFM69 radio;
 SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX); //begin Software Serial
 Bounce debouncer = Bounce(); 
-
+File logFile; //file on the SD card we're writing to
 /*==============|| FONA ||==============*/
 String response; //globaly accessable response from AT commands (how do you make a function that returns a String?)
-unsigned long Reporting = 60000*15;  // Time between uploads  //900 000 is 15 minutes
+unsigned long Reporting = 60000*1;  // Time between uploads  //900 000 is 15 minutes
 unsigned long LastReporting = 0;  // When did we last send data
 
 /*==============|| Data.Sparkfun ||==============*/
@@ -75,19 +77,39 @@ Payload theData;
 
 
 void setup() {
+  pinMode(CHIP_SELECT, OUTPUT); //SD card chip select
   pinMode(FONA_PS, INPUT); 
   pinMode(FONA_KEY,OUTPUT); 
   digitalWrite(FONA_KEY, HIGH);
   fonaSS.begin(9600);
   lcd.begin(16,2);
   lcd.setBacklight(1);
-  //pinMode(buttonPin, INPUT_PULLUP); 
   pinMode(BUTTON_PIN,INPUT_PULLUP); //set button to input
   debouncer.attach(BUTTON_PIN);
   debouncer.interval(5); // interval in ms
   radio.initialize(FREQUENCY,NODEID,NETWORKID);
   radio.setHighPower(); //uncomment only for RFM69HW!
   radio.encrypt(KEY);
+  //Serial.begin(9600);
+  if (!SD.begin(CHIP_SELECT)) {
+   // Serial.println("Card failed, or not present");
+   lcdprint("SD CARD FAIL");
+    return;  // don't do anything more:
+  }
+ // Serial.println("card initialized.");
+  logFile = SD.open("log.csv", FILE_WRITE); //open (or create if it doesn't exist) the log file
+  if (!logFile) { //if there is an error
+   // Serial.println("error opening logFile");
+   lcdprint("FILE FAIL");
+    return; // and don't do anything more;
+  }
+  //Serial.println("logFile OK"); //all is OK
+    //write header line
+  logFile.println("----->HEADER<-------");
+  logFile.flush(); //flush the serial line to clear it 
+  logFile.close(); //and close the file 
+ // Serial.println("Header Written");
+ //lcdprint("HEADER OK");
 }
 
 void loop() {
@@ -98,10 +120,11 @@ void loop() {
     turnOnFONA(); //turn on board (sets gsmActive to 1)
     delay(10000); //delay for 10sec. NOTE: NEEDS to be longer than 3 seconds, 10 works great.
     setupGPRS(); //turn on GPRS, set APN, etc. 
-    doHTTP(); //Make Get request and shut down GPRS context.
+   // doHTTP(); //Make Get request and shut down GPRS context.
     delay(2000); //This delay is also pretty important. Give it time to finish any operations BEFORE powering it down.
     turnOffFONA(); //turn off module (sets gsmActive to 0)
     LastReporting = millis();
+    writeToSD();
   }
 
   if(!gsmActive) {
@@ -118,6 +141,22 @@ void loop() {
   }
 }
 
+void writeToSD() {
+  logFile = SD.open("log.csv", FILE_WRITE);
+  for(int i=0; i < NUM_NODES; i++) { 
+    if(dataArray[i][0]>0) { 
+      for(int j=0; j < NUM_FIELDS; j++) {
+        logFile.print(dataArray[i][j]);
+        logFile.print(",");
+      }
+      logFile.println();
+    }
+    logFile.flush();
+    logFile.close();
+    lcdprint("SD CARD WRITE DONE");
+   // Serial.println("SD card write done");
+  }
+}
 void updateButton() {
   /*==============|| Button Input ||==============*/
   debouncer.update();
