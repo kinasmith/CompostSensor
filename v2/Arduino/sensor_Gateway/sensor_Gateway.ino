@@ -32,7 +32,7 @@ Bounce debouncer = Bounce();
 
 /*==============|| FONA ||==============*/
 String response; //globaly accessable response from AT commands (how do you make a function that returns a String?)
-unsigned long Reporting = 60000*15;  // Time between uploads  //900 000 is 15 minutes
+unsigned long Reporting = 60000*1;  // Time between uploads  //900 000 is 15 minutes
 unsigned long LastReporting = 0;  // When did we last send data
 
 /*==============|| Data.Sparkfun ||==============*/
