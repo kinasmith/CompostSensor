@@ -31,7 +31,7 @@ LiquidTWI lcd(0);
 RFM69 radio;
 SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX); //begin Software Serial
 Bounce debouncer = Bounce(); 
-File logFile; //file on the SD card we're writing to
+//File logFile; //file on the SD card we're writing to
 /*==============|| FONA ||==============*/
 String response; //globaly accessable response from AT commands (how do you make a function that returns a String?)
 unsigned long Reporting = 60000*1;  // Time between uploads  //900 000 is 15 minutes
@@ -77,7 +77,7 @@ Payload theData;
 
 
 void setup() {
-  pinMode(CHIP_SELECT, OUTPUT); //SD card chip select
+  //pinMode(CHIP_SELECT, OUTPUT); //SD card chip select
   pinMode(FONA_PS, INPUT); 
   pinMode(FONA_KEY,OUTPUT); 
   digitalWrite(FONA_KEY, HIGH);
@@ -90,7 +90,6 @@ void setup() {
   radio.initialize(FREQUENCY,NODEID,NETWORKID);
   radio.setHighPower(); //uncomment only for RFM69HW!
   radio.encrypt(KEY);
-  //Serial.begin(9600);
   if (!SD.begin(CHIP_SELECT)) {
    // Serial.println("Card failed, or not present");
    lcdprint("SD CARD FAIL");
@@ -124,7 +123,7 @@ void loop() {
     delay(2000); //This delay is also pretty important. Give it time to finish any operations BEFORE powering it down.
     turnOffFONA(); //turn off module (sets gsmActive to 0)
     LastReporting = millis();
-    writeToSD();
+    //writeToSD();
   }
 
   if(!gsmActive) {
