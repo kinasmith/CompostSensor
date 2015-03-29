@@ -32,7 +32,7 @@ Bounce debouncer = Bounce();
 
 /*==============|| FONA ||==============*/
 String response; //globaly accessable response from AT commands (how do you make a function that returns a String?)
-unsigned long Reporting = 60000*1;  // Time between uploads  //900 000 is 15 minutes
+unsigned long Reporting = 60000*2;  // Time between uploads  //900 000 is 15 minutes
 unsigned long LastReporting = 0;  // When did we last send data
 
 /*==============|| Data.Sparkfun ||==============*/
@@ -81,7 +81,6 @@ void setup() {
   fonaSS.begin(9600);
   lcd.begin(16,2);
   lcd.setBacklight(1);
-  //pinMode(buttonPin, INPUT_PULLUP); 
   pinMode(BUTTON_PIN,INPUT_PULLUP); //set button to input
   debouncer.attach(BUTTON_PIN);
   debouncer.interval(5); // interval in ms
@@ -137,6 +136,7 @@ void updateDisplay() {
   /*==============|| Update Display ||==============*/
     if(lcdLastReporting + lcdReporting < millis()) {
    //   Serial.println("lcd Update");
+      lcd.clear();
       lcd.setCursor(0,0); //sets cursor to the upper left corner to start
       lcd.print("#"); //prints that string
       lcd.print(":");
@@ -318,35 +318,43 @@ void setupGPRS() { //all the commands to setup a GPRS context and get ready for 
   //Serial.print("disable echo: ");
   if(sendATCommand("ATE0")) { //disable local echo
    // Serial.println(response);
+   lcdprint(response);
   }
   //Serial.print("long errors: ");
   if(sendATCommand("AT+CMEE=2")){ //enable verbose errors
    // Serial.println(response);
+   lcdprint(response);
   }
   //Serial.print("at+cmgf=1: ");
   if(sendATCommand("AT+CMGF=1")){ //sets SMS mode to TEXT mode....This MIGHT not be needed. But it doesn't break anything with it there. 
    // Serial.println(response);
+   lcdprint(response);
   }
   //Serial.print("at+cgatt=1: ");
   if(sendATCommand("AT+CGATT=1")){ //Attach to GPRS service (1 - attach, 0 - disengage)
    // Serial.println(response);
+   lcdprint(response);
   }
   //AT+SAPBR - Bearer settings for applications based on IP
  // Serial.print("Connection Type: GPRS: ");
   if(sendATCommand("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\"")){ //3 - Set bearer perameters
    // Serial.println(response);
+   lcdprint(response);
   }
  // Serial.print("Set APN: ");
   if(sendATCommand("AT+SAPBR=3,1,\"APN\",\"att.mvno\"")){ //sets APN for transaction
   //if(sendATCommand("AT+SAPBR=3,1,\"APN\",\"epc.tmobile.com\"")){ //sets APN for transaction
   //  Serial.println(response);
+  lcdprint(response);
   }
   if(sendATCommand("AT+SAPBR=1,1")) { //Open Bearer
-  //  if(response == "OK") {
+    if(response == "OK") {
     //  Serial.println("Engaged GPRS");
-   // } else {
+    lcdprint("GPRS ON");
+    } else {
     //  Serial.println("GPRS Already on");
-  //  }
+    lcdprint("GPRS Already On");
+    }
   }
 }
 boolean sendATCommand(char Command[]) { //Send an AT command and wait for a response
