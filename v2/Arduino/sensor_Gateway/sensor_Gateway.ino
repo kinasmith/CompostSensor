@@ -32,7 +32,8 @@ Bounce debouncer = Bounce();
 
 /*==============|| FONA ||==============*/
 String response; //globaly accessable response from AT commands (how do you make a function that returns a String?)
-unsigned long Reporting = 60000*2;  // Time between uploads  //900 000 is 15 minutes
+//unsigned long Reporting = 60000*2;  // Time between uploads  //900 000 is 15 minutes
+unsigned long Reporting = 6000;
 unsigned long LastReporting = 0;  // When did we last send data
 
 /*==============|| Data.Sparkfun ||==============*/
@@ -78,6 +79,7 @@ void setup() {
   pinMode(FONA_PS, INPUT); 
   pinMode(FONA_KEY,OUTPUT); 
   digitalWrite(FONA_KEY, HIGH);
+  Serial.begin(9600);
   fonaSS.begin(9600);
   lcd.begin(16,2);
   lcd.setBacklight(1);
@@ -90,9 +92,14 @@ void setup() {
 }
 
 void loop() {
+  lcd.setBacklight(1);
+  lcd.clear();
+  lcd.print(getFONAVoltage());
+  delay(2000);
   /*==============|| Make GET Request ||==============*/
-  if (LastReporting + Reporting < millis()) {
-    lcd.setBacklight(1);
+//  if (LastReporting + Reporting < millis()) {
+
+    /*    
     radio.sleep(); //disable radio while updating GSM to save a little power
     turnOnFONA(); //turn on board (sets gsmActive to 1)
     delay(10000); //delay for 10sec. NOTE: NEEDS to be longer than 3 seconds, 10 works great.
@@ -100,11 +107,13 @@ void loop() {
     doHTTP(); //Make Get request and shut down GPRS context.
     delay(2000); //This delay is also pretty important. Give it time to finish any operations BEFORE powering it down.
     turnOffFONA(); //turn off module (sets gsmActive to 0)
-    LastReporting = millis();
-  }
+    */
+   // LastReporting = millis();
+ // }
 
-  if(!gsmActive) {
+ // if(!gsmActive) {
   /*==============|| RADIO Recieve ||==============*/
+/*
     if (radio.receiveDone()) {
       radioReceive();
       if (radio.ACKRequested()) {
@@ -115,6 +124,20 @@ void loop() {
     updateButton();
     updateDisplay();
   }
+  */
+}
+
+float getFONAVoltage() {
+  float v;
+  sendATCommand("ATE0");
+  if(sendATCommand("AT+CBC")) {
+    //+CBC: 0,95,4163
+   if(response.startsWith("+CBC: 0,")) {
+      v = response.substring(11,15).toFloat();
+   }
+  }
+  v /= 1000;
+  return v;
 }
 
 void updateButton() {

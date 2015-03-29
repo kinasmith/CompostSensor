@@ -1,18 +1,19 @@
  #include <SoftwareSerial.h>
 
-//define FONA pins
-#define FONA_RX 4 //comms
-#define FONA_TX 3 //comms
+#define FONA_RX 3 //comms
+#define FONA_TX 4 //comms
 #define FONA_KEY 5 //powers board down
 #define FONA_PS 6 //status pin. Is the board on or not?
+#define ATtimeOut  10000 //timeout for AT commands
+#define keyTime 2000 // Time needed to turn on/off the Fona
+
+
 
 //For FONA
-int ATtimeOut = 10000; //timeout for AT commands
 String response; //globaly accessable response from AT commands (how do you make a function that returns a String?)
-int keyTime = 2000; // Time needed to turn on/off the Fona
 String url = "http://www.t4d.cc/Demo/getThat.html"; //Input URL here. This one goes to the class test page
 
-SoftwareSerial mySerial(3, 4);
+SoftwareSerial mySerial(FONA_TX, FONA_RX);
 char inChar = 0;
 
 
