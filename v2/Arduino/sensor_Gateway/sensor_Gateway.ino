@@ -233,7 +233,7 @@ void doHTTP() { //Make HTTP GET request and then close out GPRS connection
 }
 void doGETRequest() {
   lcdprint("DO GET REQUEST");
-  Serial.println("do get request...")
+  Serial.println("do get request...");
   //for each NODE listen above...
   for(int i=0; i < NUM_NODES; i++) { 
   //  Serial.print("First value of Array is: "); Serial.println(dataArray[i][0]);
