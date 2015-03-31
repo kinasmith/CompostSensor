@@ -3,7 +3,6 @@
 #include <RFM69.h>
 #include <SPI.h>
 #include <SoftwareSerial.h>
-#include "floatToString.h" 
 #include <Bounce2.h>
 
 #define NODEID      1
@@ -50,10 +49,8 @@ float node02[6]={0,0,0,0,0,0};
 float node03[6]={0,0,0,0,0,0};
 float node04[6]={0,0,0,0,0,0};
 float* dataArray[]={&node00[0],&node01[0],&node02[0],&node03[0],&node04[0]};
-char buffer[25]; //for floatToString();
 
 /*==============|| Display & Buttons ||==============*/
-
 unsigned long lcdReporting = 500; //time between updates
 unsigned long lcdLastReporting = 0; 
 long lcdBacklightLastReporting = 0;
@@ -79,16 +76,16 @@ void setup() {
   pinMode(FONA_KEY,OUTPUT); 
   digitalWrite(FONA_KEY, HIGH);
   Serial.begin(9600);
-  fonaSS.begin(9600);
+  fonaSS.begin(4800);
   lcd.begin(16,2);
   lcd.setBacklight(1);
-  //pinMode(buttonPin, INPUT_PULLUP); 
   pinMode(BUTTON_PIN,INPUT_PULLUP); //set button to input
   debouncer.attach(BUTTON_PIN);
   debouncer.interval(5); // interval in ms
   radio.initialize(FREQUENCY,NODEID,NETWORKID);
   radio.setHighPower(); //uncomment only for RFM69HW!
   radio.encrypt(KEY);
+  Serial.println("Setup Done");
 }
 
 void loop() {
