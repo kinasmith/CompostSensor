@@ -136,7 +136,6 @@ void updateButton() {
 void updateDisplay() {
   /*==============|| Update Display ||==============*/
     if(lcdLastReporting + lcdReporting < millis()) {
-   //   Serial.println("lcd Update");
       lcd.setCursor(0,0); //sets cursor to the upper left corner to start
       lcd.print("#"); //prints that string
       lcd.print(":");
@@ -195,7 +194,6 @@ void Blink(byte PIN, int DELAY_MS) {
   digitalWrite(PIN,LOW);
 }
 void doHTTP() { //Make HTTP GET request and then close out GPRS connection
- // lcdprint("DO HTTP");
   Serial.println("HTTP BEGUN!");
   Serial.print("HTTPINIT: ");
   //this checks if it is on. If it is, it's turns it off then back on again. (This Is probably not needed. )
@@ -230,7 +228,6 @@ void doHTTP() { //Make HTTP GET request and then close out GPRS connection
   }
 }
 void doGETRequest() {
- // lcdprint("DO GET REQUEST");
   Serial.println("do get request...");
   //for each NODE listen above...
   for(int i=0; i < NUM_NODES; i++) { 
@@ -262,7 +259,6 @@ void doGETRequest() {
   }
 }
 boolean sendURL() { //builds url for Sparkfun GET Request, sends request and waits for reponse
-  //lcdprint("SEND URL");
   int complete = 0;
   char c;
   String content;
@@ -312,7 +308,6 @@ boolean sendURL() { //builds url for Sparkfun GET Request, sends request and wai
   else return 0;
 }
 void setupGPRS() { //all the commands to setup a GPRS context and get ready for HTTP command
-  //lcdprint("SETUP GPRS");
   //the sendATCommand sends the command to the FONA and waits until the recieves a response before continueing on. 
   Serial.print("disable echo: ");
   if(sendATCommand("ATE0")) { //disable local echo
@@ -322,6 +317,12 @@ void setupGPRS() { //all the commands to setup a GPRS context and get ready for 
   if(sendATCommand("AT+CMEE=2")){ //enable verbose errors
    Serial.println(response);
   }
+  /*
+  Serial.print("Voltage:");
+  if(sendATCommand("AT+CBC")) {
+    Serial.println(response);
+  }
+  */
   Serial.print("at+cmgf=1: ");
   if(sendATCommand("AT+CMGF=1")){ //sets SMS mode to TEXT mode....This MIGHT not be needed. But it doesn't break anything with it there. 
    Serial.println(response);
