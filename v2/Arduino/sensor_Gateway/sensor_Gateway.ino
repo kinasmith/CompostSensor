@@ -13,8 +13,8 @@
 #define SERIAL_BAUD 9600
 #define ACK_TIME    30  // # of ms to wait for an ack
 
-#define FONA_RX 3 //comms
 #define FONA_TX 4 //comms
+#define FONA_RX 3 //comms
 #define FONA_KEY 5 //powers board down
 #define FONA_PS 6 //status pin. Is the board on or not?
 #define FONA_RST 8 //FONA Reset
