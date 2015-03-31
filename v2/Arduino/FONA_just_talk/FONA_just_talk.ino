@@ -25,8 +25,8 @@ void setup() {
   Serial.println("SoftwareSerial started");
   //uncomment this to do a single GET request at start.
 
-//  turnOnFONA();
- // delay(10000);
+turnOnFONA();
+ delay(10000);
 
   
   Serial.println("Setup Done");
