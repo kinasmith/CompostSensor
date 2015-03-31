@@ -76,8 +76,8 @@ void setup() {
   pinMode(FONA_KEY,OUTPUT); 
   digitalWrite(FONA_KEY, HIGH);
   Serial.begin(9600);
-  /*
   fonaSS.begin(4800);
+  /*
   lcd.begin(16,2);
   lcd.setBacklight(1);
   pinMode(BUTTON_PIN,INPUT_PULLUP); //set button to input
@@ -377,9 +377,10 @@ void turnOnFONA() { //turns FONA ON
       unsigned long KeyPress = millis(); 
       while(KeyPress + keyTime >= millis()) {} //wait two seconds
       digitalWrite(FONA_KEY,HIGH); //pull it back up again
-        Serial.println("FONA Powered Up");
+      Serial.println("FONA Powered Up");
+      delay(10000); //delay for 10sec. NOTE: NEEDS to be longer than 3 seconds, 10 works great.
     } else Serial.println("FONA Already On, Did Nothing");
-    delay(10000); //delay for 10sec. NOTE: NEEDS to be longer than 3 seconds, 10 works great.
+    
 }
 void turnOffFONA() { //does the opposite of turning the FONA ON (ie. OFF)
     delay(2000); //This delay is also pretty important. Give it time to finish any operations BEFORE powering it down.
