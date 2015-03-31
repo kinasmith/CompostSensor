@@ -78,6 +78,7 @@ void setup() {
   pinMode(FONA_PS, INPUT); 
   pinMode(FONA_KEY,OUTPUT); 
   digitalWrite(FONA_KEY, HIGH);
+  Serial.begin(9600);
   fonaSS.begin(9600);
   lcd.begin(16,2);
   lcd.setBacklight(1);
