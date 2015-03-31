@@ -104,8 +104,9 @@ void loop() {
     LastReporting = millis();
   }
 
-  if(!gsmActive) {
+  //if(!gsmActive) {
   /*==============|| RADIO Recieve ||==============*/
+  /*
     if (radio.receiveDone()) {
       radioReceive();
       if (radio.ACKRequested()) {
@@ -116,6 +117,7 @@ void loop() {
     updateButton();
     updateDisplay();
   }
+  */
 }
 
 void updateButton() {
@@ -196,11 +198,10 @@ void Blink(byte PIN, int DELAY_MS) {
 }
 void doHTTP() { //Make HTTP GET request and then close out GPRS connection
   lcdprint("DO HTTP");
- // Serial.println("HTTP BEGUN!");
- // Serial.print("HTTPINIT: ");
+  Serial.println("HTTP BEGUN!");
+  Serial.print("HTTPINIT: ");
   //this checks if it is on. If it is, it's turns it off then back on again. (This Is probably not needed. )
   if(sendATCommand("AT+HTTPINIT")){ //initialize HTTP service. If it's already on, this will throw an Error. 
-  /*
     if(response != "OK") { //if you DO NOT respond OK (ie, you're already on)
       Serial.print("term: ");
       if(sendATCommand("AT+HTTPTERM")) { //TURN OFF
@@ -213,26 +214,26 @@ void doHTTP() { //Make HTTP GET request and then close out GPRS connection
       Serial.println(response);
     }
     Serial.println(response);
-    */
   }
+  Serial.print("HTTPPARA, CID: ");
   if(sendATCommand("AT+HTTPPARA=\"CID\",1")){ //Mandatory, Bearer profile identifier
- //   Serial.print("HTTPPARA, CID: ");
-  //  Serial.println(response);
+    Serial.println(response);
   }
 
   doGETRequest();
 
-  //Serial.print("HTTPTERM: ");
+  Serial.print("HTTPTERM: ");
   if(sendATCommand("AT+HTTPTERM")){ //Terminate HTTP session. (You can make multiple HTTP requests while HTTPINIT is active. Maybe even to multiple URL's? I don't know)
-   // Serial.println(response);
+    Serial.println(response);
   }
- // Serial.print("Disengage GPRS: ");
+  Serial.print("Disengage GPRS: ");
   if(sendATCommand("AT+SAPBR=0,1")){ //disengages the GPRS context.
-  //  Serial.println(response);
+    Serial.println(response);
   }
 }
 void doGETRequest() {
   lcdprint("DO GET REQUEST");
+  Serial.println("do get request...")
   //for each NODE listen above...
   for(int i=0; i < NUM_NODES; i++) { 
   //  Serial.print("First value of Array is: "); Serial.println(dataArray[i][0]);
@@ -315,38 +316,38 @@ boolean sendURL() { //builds url for Sparkfun GET Request, sends request and wai
 void setupGPRS() { //all the commands to setup a GPRS context and get ready for HTTP command
   lcdprint("SETUP GPRS");
   //the sendATCommand sends the command to the FONA and waits until the recieves a response before continueing on. 
-  //Serial.print("disable echo: ");
+  Serial.print("disable echo: ");
   if(sendATCommand("ATE0")) { //disable local echo
-   // Serial.println(response);
+    Serial.println(response);
   }
-  //Serial.print("long errors: ");
+  Serial.print("long errors: ");
   if(sendATCommand("AT+CMEE=2")){ //enable verbose errors
-   // Serial.println(response);
+   Serial.println(response);
   }
-  //Serial.print("at+cmgf=1: ");
+  Serial.print("at+cmgf=1: ");
   if(sendATCommand("AT+CMGF=1")){ //sets SMS mode to TEXT mode....This MIGHT not be needed. But it doesn't break anything with it there. 
-   // Serial.println(response);
+   Serial.println(response);
   }
-  //Serial.print("at+cgatt=1: ");
+  Serial.print("at+cgatt=1: ");
   if(sendATCommand("AT+CGATT=1")){ //Attach to GPRS service (1 - attach, 0 - disengage)
-   // Serial.println(response);
+    Serial.println(response);
   }
   //AT+SAPBR - Bearer settings for applications based on IP
- // Serial.print("Connection Type: GPRS: ");
+  Serial.print("Connection Type: GPRS: ");
   if(sendATCommand("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\"")){ //3 - Set bearer perameters
-   // Serial.println(response);
+    Serial.println(response);
   }
- // Serial.print("Set APN: ");
+  Serial.print("Set APN: ");
   if(sendATCommand("AT+SAPBR=3,1,\"APN\",\"att.mvno\"")){ //sets APN for transaction
   //if(sendATCommand("AT+SAPBR=3,1,\"APN\",\"epc.tmobile.com\"")){ //sets APN for transaction
-  //  Serial.println(response);
+   Serial.println(response);
   }
   if(sendATCommand("AT+SAPBR=1,1")) { //Open Bearer
-  //  if(response == "OK") {
-    //  Serial.println("Engaged GPRS");
-   // } else {
-    //  Serial.println("GPRS Already on");
-  //  }
+    if(response == "OK") {
+      Serial.println("Engaged GPRS");
+    } else {
+      Serial.println("GPRS Already on");
+    }
   }
 }
 boolean sendATCommand(char Command[]) { //Send an AT command and wait for a response
@@ -372,26 +373,26 @@ boolean sendATCommand(char Command[]) { //Send an AT command and wait for a resp
 void turnOnFONA() { //turns FONA ON
     gsmActive = 1;
     if(!digitalRead(FONA_PS)) { //Check if it's On already. LOW is off, HIGH is ON.
-      //  Serial.print("FONA was OFF, Powering ON: ");
+        Serial.print("FONA was OFF, Powering ON: ");
       lcdprint("FONA ON");
       digitalWrite(FONA_KEY,LOW); //pull down power set pin
       unsigned long KeyPress = millis(); 
       while(KeyPress + keyTime >= millis()) {} //wait two seconds
       digitalWrite(FONA_KEY,HIGH); //pull it back up again
-       // Serial.println("FONA Powered Up");
-    }// else Serial.println("FONA Already On, Did Nothing");
+        Serial.println("FONA Powered Up");
+    } else Serial.println("FONA Already On, Did Nothing");
 }
 void turnOffFONA() { //does the opposite of turning the FONA ON (ie. OFF)
     if(digitalRead(FONA_PS)) { //check if FONA is OFF
-      //  Serial.print("FONA was ON, Powering OFF: ");
+        Serial.print("FONA was ON, Powering OFF: ");
       lcdprint("FONA OFF"); 
       digitalWrite(FONA_KEY,LOW);
       unsigned long KeyPress = millis();
       while(KeyPress + keyTime >= millis()) {}
       digitalWrite(FONA_KEY,HIGH);
-       // Serial.println("FONA is Powered Down");
+        Serial.println("FONA is Powered Down");
     }
-    gsmActive = 0;// else Serial.println("FONA is already off, did nothing.");
+    gsmActive = 0;
 }
 void lcdprint(String toPrint){
   lcd.clear();
