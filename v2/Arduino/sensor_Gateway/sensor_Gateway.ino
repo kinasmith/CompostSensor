@@ -76,6 +76,7 @@ void setup() {
   pinMode(FONA_KEY,OUTPUT); 
   digitalWrite(FONA_KEY, HIGH);
   Serial.begin(9600);
+  /*
   fonaSS.begin(4800);
   lcd.begin(16,2);
   lcd.setBacklight(1);
@@ -85,19 +86,18 @@ void setup() {
   radio.initialize(FREQUENCY,NODEID,NETWORKID);
   radio.setHighPower(); //uncomment only for RFM69HW!
   radio.encrypt(KEY);
+  */
   Serial.println("Setup Done");
 }
 
 void loop() {
   /*==============|| Make GET Request ||==============*/
   if (LastReporting + Reporting < millis()) {
-    lcd.setBacklight(1);
-    radio.sleep(); //disable radio while updating GSM to save a little power
+  //  lcd.setBacklight(1);
+   // radio.sleep(); //disable radio while updating GSM to save a little power
     turnOnFONA(); //turn on board (sets gsmActive to 1)
-    delay(10000); //delay for 10sec. NOTE: NEEDS to be longer than 3 seconds, 10 works great.
     setupGPRS(); //turn on GPRS, set APN, etc. 
     doHTTP(); //Make Get request and shut down GPRS context.
-    delay(2000); //This delay is also pretty important. Give it time to finish any operations BEFORE powering it down.
     turnOffFONA(); //turn off module (sets gsmActive to 0)
     LastReporting = millis();
   }
@@ -195,7 +195,7 @@ void Blink(byte PIN, int DELAY_MS) {
   digitalWrite(PIN,LOW);
 }
 void doHTTP() { //Make HTTP GET request and then close out GPRS connection
-  lcdprint("DO HTTP");
+ // lcdprint("DO HTTP");
   Serial.println("HTTP BEGUN!");
   Serial.print("HTTPINIT: ");
   //this checks if it is on. If it is, it's turns it off then back on again. (This Is probably not needed. )
@@ -230,7 +230,7 @@ void doHTTP() { //Make HTTP GET request and then close out GPRS connection
   }
 }
 void doGETRequest() {
-  lcdprint("DO GET REQUEST");
+ // lcdprint("DO GET REQUEST");
   Serial.println("do get request...");
   //for each NODE listen above...
   for(int i=0; i < NUM_NODES; i++) { 
@@ -262,7 +262,7 @@ void doGETRequest() {
   }
 }
 boolean sendURL() { //builds url for Sparkfun GET Request, sends request and waits for reponse
-  lcdprint("SEND URL");
+  //lcdprint("SEND URL");
   int complete = 0;
   char c;
   String content;
@@ -312,7 +312,7 @@ boolean sendURL() { //builds url for Sparkfun GET Request, sends request and wai
   else return 0;
 }
 void setupGPRS() { //all the commands to setup a GPRS context and get ready for HTTP command
-  lcdprint("SETUP GPRS");
+  //lcdprint("SETUP GPRS");
   //the sendATCommand sends the command to the FONA and waits until the recieves a response before continueing on. 
   Serial.print("disable echo: ");
   if(sendATCommand("ATE0")) { //disable local echo
@@ -372,18 +372,20 @@ void turnOnFONA() { //turns FONA ON
     gsmActive = 1;
     if(!digitalRead(FONA_PS)) { //Check if it's On already. LOW is off, HIGH is ON.
         Serial.print("FONA was OFF, Powering ON: ");
-      lcdprint("FONA ON");
+      //lcdprint("FONA ON");
       digitalWrite(FONA_KEY,LOW); //pull down power set pin
       unsigned long KeyPress = millis(); 
       while(KeyPress + keyTime >= millis()) {} //wait two seconds
       digitalWrite(FONA_KEY,HIGH); //pull it back up again
         Serial.println("FONA Powered Up");
     } else Serial.println("FONA Already On, Did Nothing");
+    delay(10000); //delay for 10sec. NOTE: NEEDS to be longer than 3 seconds, 10 works great.
 }
 void turnOffFONA() { //does the opposite of turning the FONA ON (ie. OFF)
+    delay(2000); //This delay is also pretty important. Give it time to finish any operations BEFORE powering it down.
     if(digitalRead(FONA_PS)) { //check if FONA is OFF
         Serial.print("FONA was ON, Powering OFF: ");
-      lcdprint("FONA OFF"); 
+     // lcdprint("FONA OFF"); 
       digitalWrite(FONA_KEY,LOW);
       unsigned long KeyPress = millis();
       while(KeyPress + keyTime >= millis()) {}
