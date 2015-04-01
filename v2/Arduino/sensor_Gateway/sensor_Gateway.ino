@@ -13,8 +13,8 @@
 #define SERIAL_BAUD 9600
 #define ACK_TIME    30  // # of ms to wait for an ack
 
-#define FONA_TX 4 //comms
 #define FONA_RX 3 //comms
+#define FONA_TX 4 //comms
 #define FONA_KEY 5 //powers board down
 #define FONA_PS 6 //status pin. Is the board on or not?
 #define FONA_RST 8 //FONA Reset
@@ -78,12 +78,7 @@ void setup() {
   pinMode(FONA_RST, OUTPUT); 
   digitalWrite(FONA_KEY, HIGH);
   Serial.begin(9600);
-<<<<<<< HEAD
-  fonaSS.begin(4800);
-  /*
-=======
   fonaSS.begin(9600);
->>>>>>> jeelib_Voltage
   lcd.begin(16,2);
   lcd.setBacklight(1);
   pinMode(BUTTON_PIN,INPUT_PULLUP); //set button to input
@@ -92,25 +87,13 @@ void setup() {
   radio.initialize(FREQUENCY,NODEID,NETWORKID);
   radio.setHighPower(); //uncomment only for RFM69HW!
   radio.encrypt(KEY);
-<<<<<<< HEAD
-  */
-  Serial.println("Setup Done");
-=======
   //Serial.println("Setup Done");
->>>>>>> jeelib_Voltage
 }
 
 void loop() {
   response = "";
   /*==============|| Make GET Request ||==============*/
   if (LastReporting + Reporting < millis()) {
-<<<<<<< HEAD
-  //  lcd.setBacklight(1);
-   // radio.sleep(); //disable radio while updating GSM to save a little power
-    turnOnFONA(); //turn on board (sets gsmActive to 1)
-    setupGPRS(); //turn on GPRS, set APN, etc. 
-    doHTTP(); //Make Get request and shut down GPRS context.
-=======
     lcd.setBacklight(1);
     radio.sleep(); //disable radio while updating GSM to save a little power
     lcdprint("fona ON");
@@ -163,14 +146,12 @@ void loop() {
       //Serial.println(response);
     }
     lcdprint("fona off");
->>>>>>> jeelib_Voltage
     turnOffFONA(); //turn off module (sets gsmActive to 0)
     LastReporting = millis();
   }
 
-  //if(!gsmActive) {
+  if(!gsmActive) {
   /*==============|| RADIO Recieve ||==============*/
-  /*
     if (radio.receiveDone()) {
       radioReceive();
       if (radio.ACKRequested()) {
@@ -181,7 +162,6 @@ void loop() {
     updateButton();
     updateDisplay();
   }
-  */
 }
 
 void updateButton() {
@@ -284,44 +264,6 @@ void turnOnFONA() { //turns FONA ON
     digitalWrite(FONA_RST, HIGH);
     delay(7000);
 }
-<<<<<<< HEAD
-void doHTTP() { //Make HTTP GET request and then close out GPRS connection
-  Serial.println("HTTP BEGUN!");
-  Serial.print("HTTPINIT: ");
-  //this checks if it is on. If it is, it's turns it off then back on again. (This Is probably not needed. )
-  if(sendATCommand("AT+HTTPINIT")){ //initialize HTTP service. If it's already on, this will throw an Error. 
-    if(response != "OK") { //if you DO NOT respond OK (ie, you're already on)
-      Serial.print("term: ");
-      if(sendATCommand("AT+HTTPTERM")) { //TURN OFF
-        Serial.print("init: ");
-        if(sendATCommand("AT+HTTPINIT")) { //TURN ON
-          Serial.println(response);
-        }
-      }
-    } else {
-      Serial.println(response);
-    }
-    Serial.println(response);
-  }
-  Serial.print("HTTPPARA, CID: ");
-  if(sendATCommand("AT+HTTPPARA=\"CID\",1")){ //Mandatory, Bearer profile identifier
-    Serial.println(response);
-  }
-
-  doGETRequest();
-
-  Serial.print("HTTPTERM: ");
-  if(sendATCommand("AT+HTTPTERM")){ //Terminate HTTP session. (You can make multiple HTTP requests while HTTPINIT is active. Maybe even to multiple URL's? I don't know)
-    Serial.println(response);
-  }
-  Serial.print("Disengage GPRS: ");
-  if(sendATCommand("AT+SAPBR=0,1")){ //disengages the GPRS context.
-    Serial.println(response);
-  }
-}
-void doGETRequest() {
-  Serial.println("do get request...");
-=======
 void turnOffFONA() { //does the opposite of turning the FONA ON (ie. OFF)
     delay(2000); //This delay is also pretty important. Give it time to finish any operations BEFORE powering it down.
     if(digitalRead(FONA_PS)) { //check if FONA is OFF
@@ -373,7 +315,6 @@ void doHTTP() {
   if(sendATCommand("AT+HTTPPARA=\"CID\",1")){ //Mandatory, Bearer profile identifier
     //Serial.println(response);
   }
->>>>>>> jeelib_Voltage
   //for each NODE listen above...
   for(int i=0; i < NUM_NODES; i++) { 
  //   Serial.print("First value of Array is: "); Serial.println(dataArray[i][0]);
@@ -441,102 +382,11 @@ boolean sendURL() { //builds url for Sparkfun GET Request, sends request and wai
   if (complete ==1) return 1;
   else return 0;
 }
-<<<<<<< HEAD
-void setupGPRS() { //all the commands to setup a GPRS context and get ready for HTTP command
-  //the sendATCommand sends the command to the FONA and waits until the recieves a response before continueing on. 
-  Serial.print("disable echo: ");
-  if(sendATCommand("ATE0")) { //disable local echo
-    Serial.println(response);
-  }
-  Serial.print("long errors: ");
-  if(sendATCommand("AT+CMEE=2")){ //enable verbose errors
-   Serial.println(response);
-  }
-  /*
-  Serial.print("Voltage:");
-  if(sendATCommand("AT+CBC")) {
-    Serial.println(response);
-  }
-  */
-  Serial.print("at+cmgf=1: ");
-  if(sendATCommand("AT+CMGF=1")){ //sets SMS mode to TEXT mode....This MIGHT not be needed. But it doesn't break anything with it there. 
-   Serial.println(response);
-  }
-  Serial.print("at+cgatt=1: ");
-  if(sendATCommand("AT+CGATT=1")){ //Attach to GPRS service (1 - attach, 0 - disengage)
-    Serial.println(response);
-  }
-  //AT+SAPBR - Bearer settings for applications based on IP
-  Serial.print("Connection Type: GPRS: ");
-  if(sendATCommand("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\"")){ //3 - Set bearer perameters
-    Serial.println(response);
-  }
-  Serial.print("Set APN: ");
-  if(sendATCommand("AT+SAPBR=3,1,\"APN\",\"att.mvno\"")){ //sets APN for transaction
-  //if(sendATCommand("AT+SAPBR=3,1,\"APN\",\"epc.tmobile.com\"")){ //sets APN for transaction
-   Serial.println(response);
-  }
-  if(sendATCommand("AT+SAPBR=1,1")) { //Open Bearer
-    if(response == "OK") {
-      Serial.println("Engaged GPRS");
-    } else {
-      Serial.println("GPRS Already on");
-    }
-  }
-}
-boolean sendATCommand(char Command[]) { //Send an AT command and wait for a response
-  int complete = 0; // have we collected the whole response?
-  char c; //capture serial stream
-  String content; //place to save serial stream
-  unsigned long commandClock = millis(); //timeout Clock
-  fonaSS.println(Command); //Print Command
-  while(!complete && commandClock <= millis() + ATtimeOut) { //wait until the command is complete
-    while(!fonaSS.available() && commandClock <= millis()+ATtimeOut); //wait until the Serial Port is opened
-    while(fonaSS.available()) { //Collect the response
-      c = fonaSS.read(); //capture it
-      if(c == 0x0A || c == 0x0D); //disregard all new lines and carrige returns (makes the String matching eaiser to do)
-      else content.concat(c); //concatonate the stream into a String
-    }
-    //Serial.println(content); //Debug
-    response = content; //Save it out to a global Variable (How do you return a String from a Function?)
-    complete = 1;  //Lable as Done.
-  }
-  if (complete ==1) return 1; //Is it done? return a 1
-  else return 0; //otherwise don't (this will trigger if the command times out) 
-}
-void turnOnFONA() { //turns FONA ON
-    gsmActive = 1;
-    if(!digitalRead(FONA_PS)) { //Check if it's On already. LOW is off, HIGH is ON.
-        Serial.print("FONA was OFF, Powering ON: ");
-      //lcdprint("FONA ON");
-      digitalWrite(FONA_KEY,LOW); //pull down power set pin
-      unsigned long KeyPress = millis(); 
-      while(KeyPress + keyTime >= millis()) {} //wait two seconds
-      digitalWrite(FONA_KEY,HIGH); //pull it back up again
-      Serial.println("FONA Powered Up");
-      delay(10000); //delay for 10sec. NOTE: NEEDS to be longer than 3 seconds, 10 works great.
-    } else Serial.println("FONA Already On, Did Nothing");
-    
-}
-void turnOffFONA() { //does the opposite of turning the FONA ON (ie. OFF)
-    delay(2000); //This delay is also pretty important. Give it time to finish any operations BEFORE powering it down.
-    if(digitalRead(FONA_PS)) { //check if FONA is OFF
-        Serial.print("FONA was ON, Powering OFF: ");
-     // lcdprint("FONA OFF"); 
-      digitalWrite(FONA_KEY,LOW);
-      unsigned long KeyPress = millis();
-      while(KeyPress + keyTime >= millis()) {}
-      digitalWrite(FONA_KEY,HIGH);
-        Serial.println("FONA is Powered Down");
-    }
-    gsmActive = 0;
-=======
 void Blink(byte PIN, int DELAY_MS) {
   pinMode(PIN, OUTPUT);
   digitalWrite(PIN,HIGH);
   delay(DELAY_MS);
   digitalWrite(PIN,LOW);
->>>>>>> jeelib_Voltage
 }
 void lcdprint(String toPrint){
   lcd.clear();
