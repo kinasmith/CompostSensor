@@ -15,7 +15,8 @@
 #define NB_ATTEMPTS_ACK 5 //number of attempts to try before giving up
 
 int TRANSMITPERIOD = 60000; //transmit a packet to gateway so often (in ms) (one minute)
-int TRANSMITPERIOD_MINUTES = 10;
+int TRANSMITPERIOD_MINUTES = 10; //10 minute total
+int ACK_FAIL_WAIT_PERIOD = 30000; //30 seconds
 float batteryVoltage;
 byte sendSize=0;
 boolean requestACK = true;
@@ -34,7 +35,7 @@ typedef struct {
 Payload payload;
 
 void setup() {
-    Serial.begin(SERIAL_BAUD);
+    //Serial.begin(SERIAL_BAUD);
     Wire.begin();
     radio.initialize(FREQUENCY,NODEID,NETWORKID);
     radio.setHighPower(); //uncomment only for RFM69HW!
@@ -42,8 +43,8 @@ void setup() {
     radio.encrypt(KEY);
     radio.sleep();
     char buff[50];
-    sprintf(buff, "\nTransmitting at %d Mhz...", FREQUENCY==RF69_433MHZ ? 433 : FREQUENCY==RF69_868MHZ ? 868 : 915);
-    Serial.println(buff);
+    //sprintf(buff, "\nTransmitting at %d Mhz...", FREQUENCY==RF69_433MHZ ? 433 : FREQUENCY==RF69_868MHZ ? 868 : 915);
+    //Serial.println(buff);
 }
 
 long lastPeriod = -1;
@@ -79,7 +80,7 @@ void loop() {
 */
         while(nAttempt < NB_ATTEMPTS_ACK && !flag_ACK_received) { //resend package if it doesn't go through
         if (radio.sendWithRetry(GATEWAYID, (const void*)(&payload), sizeof(payload))){
-            Serial.print(" ok!");
+           // Serial.print(" ok!");
             flag_ACK_received = true;
             Blink(LED, 100);
             numOfSends++;
@@ -87,20 +88,20 @@ void loop() {
             //figure out a way to resend at a higher power
             //radio.setPowerLevel(31);
             //this isn't implemented!
-            Serial.print("- Failed, ");
-            Serial.println("sending again...");
+            //Serial.print("- Failed, ");
+            //Serial.println("sending again...");
             radio.sendWithRetry(GATEWAYID, (const void*)(&payload), sizeof(payload));
             Blink(LED, 100);
             delay(100);
             Blink(LED, 100);
             delay(100);
-            Blink(LED, 100);
-            delay(100);
+            //Blink(LED, 100);
+            //delay(100);
             nAttempt++;
-            Sleepy::loseSomeTime(30000); //wait 30 seconds
+            Sleepy::loseSomeTime(ACK_FAIL_WAIT_PERIOD); //wait 30 seconds
         }
     }
-    Serial.println();
+    //Serial.println();
     Blink(LED,3);
     delay(100);
     radio.sleep();
