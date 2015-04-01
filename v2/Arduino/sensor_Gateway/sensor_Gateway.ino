@@ -17,6 +17,7 @@
 #define FONA_TX 4 //comms
 #define FONA_KEY 5 //powers board down
 #define FONA_PS 6 //status pin. Is the board on or not?
+#define FONA_RST 8 //FONA Reset
 #define ATtimeOut  10000 //timeout for AT commands
 #define keyTime 2000 // Time needed to turn on/off the Fona
 #define NUM_FIELDS 6
@@ -33,7 +34,7 @@ Bounce debouncer = Bounce();
 String response; //globaly accessable response from AT commands (how do you make a function that returns a String?)
 unsigned long Reporting = 30000 * 1;  // Time between uploads  //900 000 is 15 minutes
 unsigned long LastReporting = 0;  // When did we last send data
-float fonaVoltage = 0;
+int fonaVoltage = 0;
 
 /*==============|| Data.Sparkfun ||==============*/
 //public URL: https://data.sparkfun.com/streams/6Jj46RDdY2IYWx4ZXJqz
@@ -74,7 +75,8 @@ Payload theData;
 
 void setup() {
   pinMode(FONA_PS, INPUT); 
-  pinMode(FONA_KEY,OUTPUT); 
+  pinMode(FONA_KEY,OUTPUT);
+  pinMode(FONA_RST, OUTPUT); 
   digitalWrite(FONA_KEY, HIGH);
   Serial.begin(9600);
   fonaSS.begin(9600);
@@ -96,31 +98,29 @@ void loop() {
   //  lcd.setBacklight(1);
     radio.sleep(); //disable radio while updating GSM to save a little power
     turnOnFONA(); //turn on board (sets gsmActive to 1)
-    Serial.print("Status? ");
+    
+    Serial.print("Flush: "); FONA_flushInput(); Serial.println();
+
+    Serial.print("Status: ");
     if(sendATCommand("AT")) {
       Serial.println(response);
     }
-    delay(100);
     Serial.print("Queitly: ");
     if(sendATCommand("ATE0")) {
       Serial.println(response);
     } 
-    delay(100);
     Serial.print("Battery: ");
     if(sendATCommand("AT+CBC")) {
-      Serial.println(response);
+      //+CBC: 0,66,3935OK
+      delay(1000);
+      //Serial.print(response); Serial.print(": ");
+      fonaVoltage = response.substring(8,10).toInt();
+      Serial.print(fonaVoltage); Serial.println("%");
     }
-    delay(100);
-    Serial.print("long errors: ");
-    if(sendATCommand("AT+CMEE=2")){ //enable verbose errors
+    Serial.print("at+cgatt=0: ");
+    if(sendATCommand("AT+CGATT=0")){ //Attach to GPRS service (1 - attach, 0 - disengage)
       Serial.println(response);
-    }
-    delay(100);
-    Serial.print("at+cmgf=1: ");
-    if(sendATCommand("AT+CMGF=1")){ //sets SMS mode to TEXT mode....This MIGHT not be needed. But it doesn't break anything with it there. 
-      Serial.println(response);
-    }
-    delay(500);
+    } 
     Serial.print("at+cgatt=1: ");
     if(sendATCommand("AT+CGATT=1")){ //Attach to GPRS service (1 - attach, 0 - disengage)
       Serial.println(response);
@@ -130,40 +130,20 @@ void loop() {
     if(sendATCommand("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\"")){ //3 - Set bearer perameters
       Serial.println(response);
     }
-    delay(500);
     Serial.print("Set APN: ");
     if(sendATCommand("AT+SAPBR=3,1,\"APN\",\"att.mvno\"")){ //sets APN for transaction
     //if(sendATCommand("AT+SAPBR=3,1,\"APN\",\"epc.tmobile.com\"")){ //sets APN for transaction
       Serial.println(response);
     }
-    delay(500);
     Serial.print("Open Bearer: ");
     if(sendATCommand("AT+SAPBR=1,1")) { //Open Bearer
       Serial.println(response);
     }
-    delay(2000);
-    Serial.print("HTTP Initialize: ");
-    if(sendATCommand("AT+HTTPINIT")){ //initialize HTTP service. If it's already on, this will throw an Error. 
-      Serial.println(response);
-    }
-    delay(5000);
-    Serial.print("HTTPPARA, CID: ");
-    if(sendATCommand("AT+HTTPPARA=\"CID\",1")){ //Mandatory, Bearer profile identifier
-      Serial.println(response);
-    }
-    delay(5000);
-
-    doGETRequest();
-    Serial.print("HTTPTERM: ");
-    if(sendATCommand("AT+HTTPTERM")){ //Terminate HTTP session. (You can make multiple HTTP requests while HTTPINIT is active. Maybe even to multiple URL's? I don't know)
-      Serial.println(response);
-    }
-    delay(5000);
+    doHTTP();
     Serial.print("Disengage GPRS: ");
     if(sendATCommand("AT+SAPBR=0,1")){ //disengages the GPRS context.
       Serial.println(response);
     }
-    delay(5000);
     turnOffFONA(); //turn off module (sets gsmActive to 0)
     LastReporting = millis();
   }
@@ -268,7 +248,13 @@ void turnOnFONA() { //turns FONA ON
       digitalWrite(FONA_KEY,HIGH); //pull it back up again
       Serial.println("FONA Powered Up");
     } else Serial.println("FONA Already On, Did Nothing");
-    delay(10000); //delay for 10sec. NOTE: NEEDS to be longer than 3 seconds, 10 works great.
+    delay(5000); //delay for 10sec. NOTE: NEEDS to be longer than 3 seconds, 10 works great
+    digitalWrite(FONA_RST, HIGH);
+    delay(10);
+    digitalWrite(FONA_RST, LOW);
+    delay(100);
+    digitalWrite(FONA_RST, HIGH);
+    delay(7000);
 }
 void turnOffFONA() { //does the opposite of turning the FONA ON (ie. OFF)
     delay(2000); //This delay is also pretty important. Give it time to finish any operations BEFORE powering it down.
@@ -284,9 +270,8 @@ void turnOffFONA() { //does the opposite of turning the FONA ON (ie. OFF)
     gsmActive = 0;
 }
 boolean sendATCommand(char Command[]) { //Send an AT command and wait for a response
- // Serial.print("Stored Response: "); Serial.println(response);
-  response = "";
-  //FONA_flushInput();
+  //response = "";
+  FONA_flushInput();
   int complete = 0; // have we collected the whole response?
   char c; //capture serial stream
   String content; //place to save serial stream
@@ -296,12 +281,11 @@ boolean sendATCommand(char Command[]) { //Send an AT command and wait for a resp
     while(!fonaSS.available() && commandClock <= millis()+ATtimeOut);
     while(fonaSS.available()) { //Collect the response
       c = fonaSS.read(); //capture it
-     // if(c == 0x0A || c == 0x0D); //disregard all new lines and carrige returns (makes the String matching eaiser to do)
-      //else 
-      content.concat(c); //concatonate the stream into a String
+      if(c == 0x0A || c == 0x0D); //disregard all new lines and carrige returns (makes the String matching eaiser to do)
+      else content.concat(c); //concatonate the stream into a String
     }
     //Serial.println();
-    //Serial.println(content); //Debug
+   // Serial.println(content); //Debug
     response = content; //Save it out to a global Variable (How do you return a String from a Function?)
     complete = 1;  //Label as Done.
   }
@@ -314,8 +298,15 @@ boolean sendATCommand(char Command[]) { //Send an AT command and wait for a resp
     return 0; //otherwise don't (this will trigger if the command times out) 
   }
 }
-void doGETRequest() {
-  Serial.println("do get request..."); 
+void doHTTP() {
+  Serial.print("HTTP Initialize: ");
+  if(sendATCommand("AT+HTTPINIT")){ //initialize HTTP service. If it's already on, this will throw an Error. 
+    Serial.println(response);
+  }
+  Serial.print("HTTPPARA, CID: ");
+  if(sendATCommand("AT+HTTPPARA=\"CID\",1")){ //Mandatory, Bearer profile identifier
+    Serial.println(response);
+  }
   //for each NODE listen above...
   for(int i=0; i < NUM_NODES; i++) { 
     Serial.print("First value of Array is: "); Serial.println(dataArray[i][0]);
@@ -325,6 +316,7 @@ void doGETRequest() {
       //transfer data to holding array to send to URL
       for(int j=0; j < NUM_FIELDS; j++) { 
         fieldData[j] = dataArray[i][j];
+        dataArray[i][j] = 0; //clear array to it doesn't upload multiple repeat values
       }
       Serial.print("Set URL: "); 
       if(sendURL()){ //sets the URL for Sparkfun. Same result as the command above. Lots of other options, see the datasheet: sim800_series_at_command_manual
@@ -334,14 +326,20 @@ void doGETRequest() {
       if(sendATCommand("AT+HTTPACTION=0")){ //make get request =0 - GET, =1 - POST, =2 - HEAD
         Serial.println(response);
       }
-      Serial.println(">>> delay 2k");
       delay(2000); //wait for a bit for stuff to complete
       Serial.print("HTTP Read: ");
       if(sendATCommand("AT+HTTPREAD")){ //Read the HTTP response and print it out
         Serial.println(response);
       }
       delay(2000);//wait some more
-      }
+      Serial.print("Flush: ");
+      FONA_flushInput();
+      delay(1000);
+    }
+  }
+  Serial.print("HTTPTERM: ");
+  if(sendATCommand("AT+HTTPTERM")){ //Terminate HTTP session. (You can make multiple HTTP requests while HTTPINIT is active. Maybe even to multiple URL's? I don't know)
+  Serial.println(response);
   }
 }
 boolean sendURL() { //builds url for Sparkfun GET Request, sends request and waits for reponse
@@ -385,16 +383,15 @@ void lcdprint(String toPrint){
   lcd.clear();
   lcd.print(toPrint);
 }
-/*
 void FONA_flushInput() {
     // Read all available serial input to flush pending data.
     uint16_t timeoutloop = 0;
     while (timeoutloop++ < 40) {
         while(fonaSS.available()) {
-            fonaSS.read();
+            Serial.write(fonaSS.read());
             timeoutloop = 0;  // If char was received reset the timer
         }
         delay(1);
     }
 }
-*/
+
