@@ -125,17 +125,18 @@ void loop() {
     if(sendATCommand("AT+CGATT=1")){ //Attach to GPRS service (1 - attach, 0 - disengage)
       Serial.println(response);
     }
-    delay(500);
     //AT+SAPBR - Bearer settings for applications based on IP
     Serial.print("Connection Type: GPRS: ");
     if(sendATCommand("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\"")){ //3 - Set bearer perameters
       Serial.println(response);
     }
+    delay(500);
     Serial.print("Set APN: ");
     if(sendATCommand("AT+SAPBR=3,1,\"APN\",\"att.mvno\"")){ //sets APN for transaction
     //if(sendATCommand("AT+SAPBR=3,1,\"APN\",\"epc.tmobile.com\"")){ //sets APN for transaction
       Serial.println(response);
     }
+    delay(500);
     Serial.print("Open Bearer: ");
     if(sendATCommand("AT+SAPBR=1,1")) { //Open Bearer
       Serial.println(response);
@@ -153,7 +154,6 @@ void loop() {
     delay(5000);
 
     doGETRequest();
-
     Serial.print("HTTPTERM: ");
     if(sendATCommand("AT+HTTPTERM")){ //Terminate HTTP session. (You can make multiple HTTP requests while HTTPINIT is active. Maybe even to multiple URL's? I don't know)
       Serial.println(response);
@@ -170,7 +170,6 @@ void loop() {
 
   if(!gsmActive) {
   /*==============|| RADIO Recieve ||==============*/
-  
     if (radio.receiveDone()) {
       radioReceive();
       if (radio.ACKRequested()) {
@@ -233,6 +232,12 @@ void radioReceive() {
     dataArray[sensorNumber][3] = theData.humidity;
     dataArray[sensorNumber][4] = theData.voltage;
     dataArray[sensorNumber][5] = radio.readRSSI();
+    Serial.print(theData.nodeId);
+    Serial.print(", T:");
+    Serial.print(theData.temp);
+    Serial.print(", V:");
+    Serial.print(theData.voltage);
+    Serial.println();
   }
 }
 void ACKsend(){
@@ -252,7 +257,6 @@ void ACKsend(){
     // else Serial.print("nothing");
   }
 }
-
 void turnOnFONA() { //turns FONA ON
     gsmActive = 1;
     if(!digitalRead(FONA_PS)) { //Check if it's On already. LOW is off, HIGH is ON.
@@ -282,14 +286,14 @@ void turnOffFONA() { //does the opposite of turning the FONA ON (ie. OFF)
 boolean sendATCommand(char Command[]) { //Send an AT command and wait for a response
  // Serial.print("Stored Response: "); Serial.println(response);
   response = "";
+  //FONA_flushInput();
   int complete = 0; // have we collected the whole response?
   char c; //capture serial stream
   String content; //place to save serial stream
   unsigned long commandClock = millis(); //timeout Clock
   fonaSS.println(Command); //Print Command
   while(!complete && commandClock <= millis() + ATtimeOut) { //wait until the command is complete
-    Serial.print(".");
-    while(!fonaSS.available() && commandClock <= millis()+ATtimeOut); Serial.print(",");//wait until the Serial Port is opened
+    while(!fonaSS.available() && commandClock <= millis()+ATtimeOut);
     while(fonaSS.available()) { //Collect the response
       c = fonaSS.read(); //capture it
      // if(c == 0x0A || c == 0x0D); //disregard all new lines and carrige returns (makes the String matching eaiser to do)
@@ -302,7 +306,6 @@ boolean sendATCommand(char Command[]) { //Send an AT command and wait for a resp
     complete = 1;  //Label as Done.
   }
   if (complete ==1) {
-    Serial.print("!");
     return 1; //Is it done? return a 1
   }
   else {
@@ -315,27 +318,27 @@ void doGETRequest() {
   Serial.println("do get request..."); 
   //for each NODE listen above...
   for(int i=0; i < NUM_NODES; i++) { 
-  //  Serial.print("First value of Array is: "); Serial.println(dataArray[i][0]);
+    Serial.print("First value of Array is: "); Serial.println(dataArray[i][0]);
     if(dataArray[i][0]>0) { //if first value is greater than 0...(ie. the node is more than 1, it exists/has data)
-     // Serial.print(">>> Transcribing Data for: ");
-     // Serial.println(i);    
+      Serial.print(">>> Transcribing Data for: ");
+      Serial.println(i);    
       //transfer data to holding array to send to URL
       for(int j=0; j < NUM_FIELDS; j++) { 
         fieldData[j] = dataArray[i][j];
       }
-     // Serial.print("Set URL: "); 
+      Serial.print("Set URL: "); 
       if(sendURL()){ //sets the URL for Sparkfun. Same result as the command above. Lots of other options, see the datasheet: sim800_series_at_command_manual
-      //  Serial.println(response);
+        Serial.println(response);
       }
-      //Serial.print("GET REQUEST: ");
+      Serial.print("GET REQUEST: ");
       if(sendATCommand("AT+HTTPACTION=0")){ //make get request =0 - GET, =1 - POST, =2 - HEAD
-       // Serial.println(response);
+        Serial.println(response);
       }
-     // Serial.println(">>> delay 2k");
+      Serial.println(">>> delay 2k");
       delay(2000); //wait for a bit for stuff to complete
-      //Serial.print("HTTP Read: ");
+      Serial.print("HTTP Read: ");
       if(sendATCommand("AT+HTTPREAD")){ //Read the HTTP response and print it out
-       // Serial.println(response);
+        Serial.println(response);
       }
       delay(2000);//wait some more
       }
@@ -372,7 +375,6 @@ boolean sendURL() { //builds url for Sparkfun GET Request, sends request and wai
   if (complete ==1) return 1;
   else return 0;
 }
-
 void Blink(byte PIN, int DELAY_MS) {
   pinMode(PIN, OUTPUT);
   digitalWrite(PIN,HIGH);
@@ -383,3 +385,16 @@ void lcdprint(String toPrint){
   lcd.clear();
   lcd.print(toPrint);
 }
+/*
+void FONA_flushInput() {
+    // Read all available serial input to flush pending data.
+    uint16_t timeoutloop = 0;
+    while (timeoutloop++ < 40) {
+        while(fonaSS.available()) {
+            fonaSS.read();
+            timeoutloop = 0;  // If char was received reset the timer
+        }
+        delay(1);
+    }
+}
+*/
