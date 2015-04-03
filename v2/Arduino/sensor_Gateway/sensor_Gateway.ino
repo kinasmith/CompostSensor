@@ -54,7 +54,7 @@ float* dataArray[]={&node00[0],&node01[0],&node02[0],&node03[0],&node04[0]};
 /*==============|| Display & Buttons ||==============*/
 unsigned long lcdReporting = 500; //time between updates
 unsigned long lcdLastReporting = 0; 
-long lcdBacklightLastReporting = 0;
+unsigned long lcdBacklightLastReporting = 0; 
 bool lcdBacklight;
 bool gsmActive = 0;
 byte buttonPushCounter = 0; //which sensor value is being displayed
@@ -94,7 +94,7 @@ void loop() {
   response = "";
   /*==============|| Make GET Request ||==============*/
   if (LastReporting + Reporting < millis()) {
-    lcd.setBacklight(1);
+    lcd.setBacklight(0);
     radio.sleep(); //disable radio while updating GSM to save a little power
     lcdprint("fona ON");
     turnOnFONA(); //turn on board (sets gsmActive to 1)
