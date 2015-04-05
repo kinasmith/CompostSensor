@@ -114,7 +114,7 @@ void loop() {
       //+CBC: 0,66,3935OK
       delay(1000);
       //Serial.print(response); Serial.print(": ");
-      fonaVoltage = response.substring(8,10).toFloat();
+      fonaVoltage = response.substring(8,11).toFloat(); //changed this to add one more character. 100% was == to 10, not 100.
       //Serial.print(fonaVoltage); Serial.println("%");
     }
     //Serial.print("at+cgatt=0: ");
