@@ -1,0 +1,22 @@
+Partlist exported from /Users/kina/Documents/eagle/thesis/lipo-charge-reg-protect.sch at 2/4/15 5:49 PM
+
+Part Value                     Device                    Package            Description                                                                             PROD_ID     VALUE
+C1   4.7uF                     0.1UF-25V(+80/-20%)(0603) 0603-CAP           CAP-00810                                                                               CAP-00810   0.1uF
+C2   0.1uF                     0.1UF-25V(+80/-20%)(0603) 0603-CAP           CAP-00810                                                                               CAP-00810   0.1uF
+C3   10uF                      0.1UF-25V(+80/-20%)(0603) 0603-CAP           CAP-00810                                                                               CAP-00810   0.1uF
+C4   10uF                      0.1UF-25V(+80/-20%)(0603) 0603-CAP           CAP-00810                                                                               CAP-00810   0.1uF
+J1                             JST_2MM_MALE              JST-2-SMD          Mates to single-cell LiPo batteries.                                                    CONN-08352       
+JP1  pwrHdr2                   M02LOCK_LONGPADS          1X02_LOCK_LONGPADS Standard 2-pin 0.1" header. Use with                                                                     
+JP2  dummerhdr                 M02LOCK_LONGPADS          1X02_LOCK_LONGPADS Standard 2-pin 0.1" header. Use with                                                                     
+JP3  pwrHdr2                   M02LOCK_LONGPADS          1X02_LOCK_LONGPADS Standard 2-pin 0.1" header. Use with                                                                     
+JP4  currentTestPoint          M02LOCK_LONGPADS          1X02_LOCK_LONGPADS Standard 2-pin 0.1" header. Use with                                                                     
+LED1                           LED0603                   LED-0603           LEDs                                                                                                     
+Q1   MOSFET-NCHANNELBSS123LT1G MOSFET-NCHANNELBSS123LT1G SOT23              Common NMOSFET Parts                                                                    TRANS-08345      
+Q2   MOSFET-NCHANNELBSS138     MOSFET-NCHANNELBSS138     SOT23              Common NMOSFET Parts                                                                    TRANS-00830      
+R1   220                       0OHM1/10W5%(0603)         0603               RES-08609                                                                               RES-08609   0    
+R2   2k                        0OHM1/10W5%(0603)         0603               RES-08609                                                                               RES-08609   0    
+R3   1k                        0OHM1/10W5%(0603)         0603               RES-08609                                                                               RES-08609   0    
+U$1  USB-MINIB-5PIN            USB-MINIB-5PIN            USB-MINIB          Mini-USB "B" connector with 5th pin broken out.                                                          
+U$2  MCP1700T-3002E/MB         MCP1700T-3002E/MB         SOT89              3.0V Low-Iq LDO - 250mA continuous current                                                               
+U1   MCP73831                  MCP73831                  SOT23-5            Miniature single cell, fully integrated Li-Ion, Li-polymer charge management controller IC-09995         
+U2                             S-8241                    SOT23-5L           Seiko S-8241                                                                                             
