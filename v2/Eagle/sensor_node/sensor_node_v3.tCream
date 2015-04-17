@@ -1,0 +1,351 @@
+%!PS-Adobe-3.0 EPSF-3.0
+%%Title: EAGLE Drawing /Users/kina/Documents/eagle/thesis/sensor_node/sensor_node_v3.brd
+%%Creator: EAGLE
+%%Pages: 1
+%%BoundingBox: 0 0 594 882
+%%EndComments
+
+% Coordinate transfer:
+
+/EU { 254 div 0.072 mul } def
+/inch { 72 mul } def
+
+% Linestyle:
+
+1 setlinecap
+1 setlinejoin
+
+% Drawing functions:
+
+/l {  % draw a line
+   /lw exch def
+   /y2 exch def
+   /x2 exch def
+   /y1 exch def
+   /x1 exch def
+   newpath
+   x1 EU y1 EU moveto
+   x2 EU y2 EU lineto
+   lw EU setlinewidth
+   stroke
+   } def
+
+/h {  % draw a hole
+   /d  exch def
+   /y  exch def
+   /x  exch def
+   d 0 gt {
+     newpath
+     x EU y EU d 2 div EU 0 360 arc
+     currentgray dup
+     1 exch sub setgray
+     fill
+     setgray
+     } if
+   } def
+
+/b {  % draw a bar
+   /an exch def
+   /y2 exch def
+   /x2 exch def
+   /y1 exch def
+   /x1 exch def
+   /w2 x2 x1 sub 2 div EU def
+   /h2 y2 y1 sub 2 div EU def
+   gsave
+   x1 x2 add 2 div EU y1 y2 add 2 div EU translate
+   an rotate
+   newpath
+   w2     h2     moveto
+   w2 neg h2     lineto
+   w2 neg h2 neg lineto
+   w2     h2 neg lineto
+   closepath
+   fill
+   grestore
+   } def
+
+/c {  % draw a circle
+   /lw exch def
+   /rd exch def
+   /y  exch def
+   /x  exch def
+   newpath
+   lw EU setlinewidth
+   x EU y EU rd EU 0 360 arc
+   stroke
+   } def
+
+/a {  % draw an arc
+   /lc exch def
+   /ae exch def
+   /as exch def
+   /lw exch def
+   /rd exch def
+   /y  exch def
+   /x  exch def
+   lw rd 2 mul gt {
+     /rd rd lw 2 div add 2 div def
+     /lw rd 2 mul def
+     } if
+   currentlinecap currentlinejoin
+   lc setlinecap 0 setlinejoin
+   newpath
+   lw EU setlinewidth
+   x EU y EU rd EU as ae arc
+   stroke
+   setlinejoin setlinecap
+   } def
+
+/p {  % draw a pie
+   /d exch def
+   /y exch def
+   /x exch def
+   newpath
+   x EU y EU d 2 div EU 0 360 arc
+   fill
+   } def
+
+/edge { 0.20710678119 mul } def
+
+/o {  % draw an octagon
+   /an exch def
+   /dy exch def
+   /dx exch def
+   /y  exch def
+   /x  exch def
+   gsave
+   x EU y EU translate
+   an dx dy lt { 90 add /dx dy /dy dx def def } if rotate
+   newpath
+      0 dx 2 div sub EU                    0 dy edge  add EU moveto
+      0 dx dy sub 2 div sub dy edge sub EU 0 dy 2 div add EU lineto
+      0 dx dy sub 2 div add dy edge add EU 0 dy 2 div add EU lineto
+      0 dx 2 div add EU                    0 dy edge  add EU lineto
+      0 dx 2 div add EU                    0 dy edge  sub EU lineto
+      0 dx dy sub 2 div add dy edge add EU 0 dy 2 div sub EU lineto
+      0 dx dy sub 2 div sub dy edge sub EU 0 dy 2 div sub EU lineto
+      0 dx 2 div sub EU                    0 dy edge  sub EU lineto
+   closepath
+   fill
+   grestore
+   } def
+
+% the real drawing size:
+
+/MinDrawX      0 EU def
+/MinDrawY      0 EU def
+/MaxDrawX 364744 EU def
+/MaxDrawY 618744 EU def
+
+% the usable page size:
+
+/LeftMargin 0.25 inch def  % change these if drawing gets clipped!
+/BotMargin  0.25 inch def
+/PageWidth   8.0000 inch def
+/PageHeight 12.0000 inch def
+
+% are we going to rotate?:
+
+/RotateDrawing 0 0 ne def
+
+% Media size functions:
+
+/AbortMessage {  % Show a message in a box and stop printing
+   /h 100 def
+   /Courier findfont 12 scalefont setfont
+   mediawidth pagemargin sub h 1 setpage
+   newpath
+   0 0 moveto
+   0 h rlineto
+   mediawidth pagemargin sub 0 rlineto
+   0 h neg rlineto
+   closepath
+   5 setlinewidth
+   stroke
+   newpath 50 60 moveto (ERROR: Jobsize exceeds physical printing area!) show
+   newpath 50 40 moveto (       Job has been aborted!) show
+   showpage
+   stop
+   } def
+
+/SelectPage {  % Select the page identified by Row and Column
+   /Column exch def
+   /Row    exch def
+
+   % the actually exposed area (if the machine knows these parameters!):
+
+   /DrawX MaxDrawX MinDrawX sub def
+   /DrawY MaxDrawY MinDrawY sub def
+   statusdict /setpage known
+   statusdict /mediawidth known and
+   statusdict /medialength known and
+   statusdict /pagemargin known and {
+      % this is for machines that can tell the media size:
+      statusdict begin
+         /MediaW mediawidth pagemargin sub def
+         DrawX DrawY ge {
+            DrawX MediaW le DrawY medialength le and {
+               MediaW DrawY 1 setpage
+               MediaW DrawX sub 2 div 0 translate
+               }{
+            DrawY MediaW le DrawX medialength le and {
+               MediaW DrawX 0 setpage
+               0 MediaW DrawY sub 2 div translate
+               }{
+               AbortMessage
+               } ifelse
+               } ifelse
+            }{
+            DrawY MediaW le DrawX medialength le and {
+               MediaW DrawX 0 setpage
+               0 MediaW DrawY sub 2 div translate
+               }{
+            DrawX MediaW le DrawY medialength le and {
+               MediaW DrawY 1 setpage
+               MediaW DrawX sub 2 div 0 translate
+               }{
+               AbortMessage
+               } ifelse
+               } ifelse
+            } ifelse
+         end
+      }{
+      % this is for machines that can NOT tell the media size:
+      % (Ghostscript doesn't like this!)
+      /Product product length string def
+      /i 0 def
+      product { dup 97 lt { 32 add } if Product exch i exch put /i i 1 add def } forall 
+      Product (ghostscript) search dup /IsGhostscript exch def
+      { pop pop } if
+      pop
+      IsGhostscript not {
+         statusdict /setpage known {
+            statusdict begin
+               RotateDrawing {
+                  LeftMargin PageHeight add BotMargin DrawY add
+                  }{
+                  BotMargin DrawY add LeftMargin DrawX add 
+                  } ifelse
+               0 setpage
+               end
+            } if
+         } if
+      % set clipping boundary:
+      newpath
+      LeftMargin BotMargin moveto
+      0 PageHeight rlineto
+      PageWidth  0 rlineto
+      0 PageHeight neg rlineto
+      closepath
+      clip
+      % set the origin:
+      LeftMargin BotMargin translate
+      RotateDrawing {
+         0 PageHeight translate
+         -90 rotate
+         PageHeight Column mul neg PageWidth Row mul neg translate
+         }{
+         PageWidth Column mul neg PageHeight Row mul neg translate
+         } ifelse
+      } ifelse
+   % move the lower left corner of the drawing to the origin:
+   MinDrawX neg MinDrawY neg translate
+   
+   % Linestyle:
+   
+   1 setlinecap
+   1 setlinejoin
+   
+   } def
+
+% TheDrawing
+
+gsave 0 0 SelectPage
+41402 10922 323852 10922 0 l
+323852 36322 25400 0 270.00 360.00 1 a
+349252 36322 349252 583592 0 l
+323852 583592 25400 0 0.00 90.00 1 a
+323852 608992 41402 608992 0 l
+41402 583592 25400 0 90.00 180.00 1 a
+16002 583592 16002 36322 0 l
+41402 36322 25400 0 180.00 270.00 1 a
+17272 21082 17272 12192 2540 l
+17272 12192 27432 12192 2540 l
+265522 527022 277022 541522 270.0 b
+265522 509022 277022 523522 270.0 b
+142222 479922 153722 494422 0.0 b
+160222 479922 171722 494422 0.0 b
+45922 75772 55422 85772 180.0 b
+29922 75772 39422 85772 180.0 b
+178372 275647 186372 283647 180.0 b
+178372 290647 186372 298647 180.0 b
+146872 273522 154372 287022 270.0 b
+146872 255522 154372 269022 270.0 b
+140522 184622 148022 198122 270.0 b
+140522 166622 148022 180122 270.0 b
+118297 210022 125797 223522 270.0 b
+118297 192022 125797 205522 270.0 b
+229947 126572 239447 136572 0.0 b
+245947 126572 255447 136572 0.0 b
+201372 288497 210872 298497 0.0 b
+217372 288497 226872 298497 0.0 b
+218422 496072 228922 502072 90.0 b
+227922 496072 238422 502072 90.0 b
+237422 496072 247922 502072 90.0 b
+237422 523072 247922 529072 90.0 b
+218422 523072 228922 529072 90.0 b
+193292 523732 203452 528812 270.0 b
+161292 522732 171452 527812 270.0 b
+275072 329572 315072 341572 180.0 b
+275072 449572 315072 461572 180.0 b
+75072 329572 115072 341572 180.0 b
+75072 349572 115072 361572 180.0 b
+75072 369572 115072 381572 180.0 b
+75072 389572 115072 401572 180.0 b
+75072 429572 115072 441572 180.0 b
+75072 449572 115072 461572 180.0 b
+254822 260604 267522 266192 270.0 b
+246822 260604 259522 266192 270.0 b
+238822 260604 251522 266192 270.0 b
+230822 260604 243522 266192 270.0 b
+222822 260604 235522 266192 270.0 b
+214822 260604 227522 266192 270.0 b
+206822 260604 219522 266192 270.0 b
+198822 260604 211522 266192 270.0 b
+187452 242122 193040 254822 270.0 b
+187452 234122 193040 246822 270.0 b
+187452 226122 193040 238822 270.0 b
+187452 218122 193040 230822 270.0 b
+187452 210122 193040 222822 270.0 b
+187452 202122 193040 214822 270.0 b
+187452 194122 193040 206822 270.0 b
+187452 186122 193040 198822 270.0 b
+198822 174752 211522 180340 270.0 b
+206822 174752 219522 180340 270.0 b
+214822 174752 227522 180340 270.0 b
+222822 174752 235522 180340 270.0 b
+230822 174752 243522 180340 270.0 b
+238822 174752 251522 180340 270.0 b
+246822 174752 259522 180340 270.0 b
+254822 174752 267522 180340 270.0 b
+273304 186122 278892 198822 270.0 b
+273304 194122 278892 206822 270.0 b
+273304 202122 278892 214822 270.0 b
+273304 210122 278892 222822 270.0 b
+273304 218122 278892 230822 270.0 b
+273304 226122 278892 238822 270.0 b
+273304 234122 278892 246822 270.0 b
+273304 242122 278892 254822 270.0 b
+248197 76747 256197 85747 180.0 b
+229197 76747 237197 85747 180.0 b
+238697 55747 246697 64747 180.0 b
+263347 77422 272847 87422 270.0 b
+263347 61422 272847 71422 270.0 b
+212547 61422 222047 71422 90.0 b
+212547 77422 222047 87422 90.0 b
+245947 148797 255447 158797 180.0 b
+229947 148797 239447 158797 180.0 b
+261822 288497 271322 298497 180.0 b
+245822 288497 255322 298497 180.0 b
+showpage grestore
