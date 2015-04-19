@@ -72,7 +72,6 @@ void loop() {
             flag_ACK_received = true;
             Blink(LED, 100);
             numOfSends++;
-            payload.voltage = checkBatteryVoltage(); //read battery voltage directly after usage event to get more accurate reading?
         } else {
           radio.sendWithRetry(GATEWAYID, (const void*)(&payload), sizeof(payload));
           Blink(LED, 100);
@@ -158,7 +157,7 @@ void Blink(byte PIN, int DELAY_MS) {
 float checkBatteryVoltage() {
     int readVal = 0;
     for (int i = 0; i < 10; i++) {
-        readVal += analogRead(0);
+        readVal += analogRead(4);
         delay(10);
     }
     readVal = readVal/10;
