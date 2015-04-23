@@ -14,8 +14,8 @@
 #define ACK_TIME    50  // # of ms to wait for an ack
 #define NB_ATTEMPTS_ACK 5 //number of attempts to try before giving up
 
-int TRANSMITPERIOD = 60000; //transmit a packet to gateway so often (in ms) (one minute)
-int TRANSMITPERIOD_MINUTES = 10; //10 minute total
+int TRANSMITPERIOD = 5000; //transmit a packet to gateway so often (in ms) (one minute)
+int TRANSMITPERIOD_MINUTES = 1; //10 minute total
 int ACK_FAIL_WAIT_PERIOD = 30000; //30 seconds
 float batteryVoltage;
 boolean requestACK = true;
@@ -34,12 +34,13 @@ typedef struct {
 Payload payload;
 
 void setup() {
+  Serial.begin(9600);
     Wire.begin();
     radio.initialize(FREQUENCY,NODEID,NETWORKID);
     radio.setHighPower(); //uncomment only for RFM69HW!
     radio.encrypt(KEY);
     radio.sleep();
-    char buff[50];
+    Serial.println("Serial.begun");
 }
 
 long lastPeriod = -1;
@@ -50,17 +51,20 @@ void loop() {
     float t = SHT2x.GetTemperature();
     float rh =  SHT2x.GetHumidity();
     float ah = massOfWater(t,rh);
+    
     payload.nodeId = NODEID;
     payload.uptime = numOfSends;
     payload.temp = t;
     payload.humidity = ah;
-    //payload.voltage = checkBatteryVoltage();
+    payload.voltage = checkBatteryVoltage();
+    Serial.print("T, "); Serial.println(t);
+    Serial.print("V, "); Serial.println(checkBatteryVoltage());
+/*
     while(nAttempt < NB_ATTEMPTS_ACK && !flag_ACK_received) { //resend package if it doesn't go through
         if (radio.sendWithRetry(GATEWAYID, (const void*)(&payload), sizeof(payload))){
             flag_ACK_received = true;
             Blink(LED, 100);
             numOfSends++;
-            payload.voltage = checkBatteryVoltage(); //read battery voltage directly after usage event to get more accurate reading?
         } else {
           radio.sendWithRetry(GATEWAYID, (const void*)(&payload), sizeof(payload));
           Blink(LED, 100);
@@ -71,6 +75,7 @@ void loop() {
           Sleepy::loseSomeTime(ACK_FAIL_WAIT_PERIOD); //wait 30 seconds
         }
     }
+    */
     Blink(LED,3);
     delay(100);
     radio.sleep();
