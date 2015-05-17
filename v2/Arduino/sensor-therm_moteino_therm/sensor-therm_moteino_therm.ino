@@ -2,7 +2,7 @@
 #include <SPI.h>
 #include <jeelib-sleepy.h>
 
-#define NODEID      11
+#define NODEID      10
 #define NETWORKID   100
 #define GATEWAYID   1
 #define FREQUENCY   RF69_433MHZ //Match this with the version of your Moteino! (others: RF69_433MHZ, RF69_868MHZ)
@@ -69,7 +69,8 @@ void loop() {
     payload.uptime = numOfSends;
     payload.temp = t;
     payload.humidity = 0.0; //Not sensing Humidity. Need a value for compatibilty with reciever and other sensors
-    payload.voltage = checkBatteryVoltage();
+    //payload.voltage = checkBatteryVoltage();
+    payload.voltage = 0.0;
     while(nAttempt < NB_ATTEMPTS_ACK && !flag_ACK_received) { //resend package if it doesn't go through
         if (radio.sendWithRetry(GATEWAYID, (const void*)(&payload), sizeof(payload))){
             flag_ACK_received = true;
@@ -95,27 +96,27 @@ void loop() {
 
 int getTherm() {
   //gets Thermistor Value for future Math operations.
-  while_bat_reporting = millis(); //get current time
-  digitalWrite(THERM_ENABLE, HIGH); //set enable pin high (closes automatically within 20ms)
-  while(millis() < while_bat_reporting + 1000) { //read the value for 1 second
+  //while_bat_reporting = millis(); //get current time
+  //digitalWrite(THERM_ENABLE, HIGH); //set enable pin high (closes automatically within 20ms)
+  //while(millis() < while_bat_reporting + 1000) { //read the value for 1 second
     thermVal = analogRead(THERM_PIN); //read the value
-    if(thermVal > 5) { //if the value goes HIGH the MOSFET has responded
+    //if(thermVal > 5) { //if the value goes HIGH the MOSFET has responded
       return thermVal; //return the Value and
-      break; //break out of the loop
-    }
-    bat_reporting = millis(); //set last time to current time
+     // break; //break out of the loop
+   // }
+   // bat_reporting = millis(); //set last time to current time
     //Forgot what this is for. Might be orphaned and uneeded?
-    if(bat_reporting >= bat_last_reporting+500 && read_state == 0) {
-      digitalWrite(THERM_ENABLE, HIGH);
-      read_state = 1; 
-      bat_last_reporting = bat_reporting; 
-    }
-      if(bat_reporting >= bat_last_reporting+250 && read_state == 1) { 
-      digitalWrite(THERM_ENABLE, LOW);  
-      read_state = 0;
-      bat_last_reporting = bat_reporting; 
-    }
-  }
+    //if(bat_reporting >= bat_last_reporting+500 && read_state == 0) {
+     // digitalWrite(THERM_ENABLE, HIGH);
+      //read_state = 1; 
+      //bat_last_reporting = bat_reporting; 
+    //}
+     // if(bat_reporting >= bat_last_reporting+250 && read_state == 1) { 
+     // digitalWrite(THERM_ENABLE, LOW);  
+      //read_state = 0;
+     // bat_last_reporting = bat_reporting; 
+   // }
+ // }
 }
 
 float getTemp(int n_samples) {
@@ -154,9 +155,9 @@ float toF(float temp) { //convert to F
 
 void Blink(byte PIN, int DELAY_MS) { //blink and LED
   pinMode(PIN, OUTPUT);
-  digitalWrite(PIN,LOW);
-  delay(DELAY_MS);
   digitalWrite(PIN,HIGH);
+  delay(DELAY_MS);
+  digitalWrite(PIN,LOW);
 }
 
 float checkBatteryVoltage() { //Check Battery Voltage

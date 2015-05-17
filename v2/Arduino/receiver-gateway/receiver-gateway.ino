@@ -21,7 +21,7 @@
 #define ATtimeOut  10000 //timeout for AT commands
 #define keyTime 2000 // Time needed to turn on/off the Fona
 #define NUM_FIELDS 7
-#define NUM_NODES 5
+#define NUM_NODES 3
 #define BUTTON_PIN 7
 
 LiquidTWI lcd(0);
@@ -89,6 +89,7 @@ void setup() {
 void loop() {
   response = "";
   /*==============|| Make GET Request ||==============*/
+  /*
   if (LastReporting + Reporting < millis()) {
     lcd.setBacklight(0);
     radio.sleep(); //disable radio while updating GSM to save a little power
@@ -145,7 +146,7 @@ void loop() {
     turnOffFONA(); //turn off module (sets gsmActive to 0)
     LastReporting = millis();
   }
-
+*/
   if(!gsmActive) {
   /*==============|| RADIO Recieve ||==============*/
     if (radio.receiveDone()) {

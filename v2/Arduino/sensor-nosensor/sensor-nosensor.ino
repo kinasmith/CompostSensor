@@ -1,7 +1,7 @@
 #include <RFM69.h>
 #include <SPI.h>
 #include <Ports.h>
-//#include <Wire.h>
+#include <Wire.h>
 #include <SHT2x.h>
 
 #define NODEID      10
@@ -14,7 +14,7 @@
 #define ACK_TIME    50  // # of ms to wait for an ack
 #define NB_ATTEMPTS_ACK 5 //number of attempts to try before giving up
 
-int TRANSMITPERIOD = 60000; //transmit a packet to gateway so often (in ms) (one minute)
+int TRANSMITPERIOD = 5000; //transmit a packet to gateway so often (in ms) (one minute)
 int TRANSMITPERIOD_MINUTES = 1;
 float batteryVoltage;
 byte sendSize=0;
@@ -71,8 +71,7 @@ void loop() {
             Blink(LED, 100);
             delay(100);
             nAttempt++;
-            Sleepy::loseSomeTime(2000);
-            //delay(500);
+            Sleepy::loseSomeTime(500);
         }
     }
     Serial.println();
@@ -80,9 +79,7 @@ void loop() {
     Blink(LED,3);
     delay(100);
     radio.sleep();
-    for(int i = 0; i < TRANSMITPERIOD_MINUTES; i++) {
-        Sleepy::loseSomeTime(TRANSMITPERIOD);
-    }
+    Sleepy::loseSomeTime(TRANSMITPERIOD);
 }
 
 void Blink(byte PIN, int DELAY_MS)
