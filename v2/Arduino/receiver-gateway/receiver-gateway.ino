@@ -21,7 +21,7 @@
 #define ATtimeOut  10000 //timeout for AT commands
 #define keyTime 2000 // Time needed to turn on/off the Fona
 #define NUM_FIELDS 7
-#define NUM_NODES 3
+#define NUM_NODES 4
 #define BUTTON_PIN 7
 
 LiquidTWI lcd(0);
@@ -179,21 +179,46 @@ void updateButton() {
 void updateDisplay() {
   /*==============|| Update Display ||==============*/
     if(lcdLastReporting + lcdReporting < millis()) {
-      lcd.setCursor(0,0); //sets cursor to the upper left corner to start
-      lcd.print(int(dataArray[buttonPushCounter][0])); //prints currently viewed sensor number
-      lcd.print(":");
-      lcd.print("T");
-      lcd.print(dataArray[buttonPushCounter][2]); //print TEMP
-      lcd.print(" H");
-      lcd.print(dataArray[buttonPushCounter][3]); //print Humidity: g/m^3
+      switch(int(dataArray[buttonPushCounter][0])) {
+        case 10:
+            lcd.setCursor(0,0); //sets cursor to the upper left corner to start
+            lcd.print(int(dataArray[buttonPushCounter][0])); //prints currently viewed sensor number
+            lcd.print(":");
+            lcd.setCursor(0,1);
+            lcd.print("T");
+            lcd.print(dataArray[buttonPushCounter][2]); //print TEMP
+            break;
+        case 11:
+            lcd.setCursor(0,0); //sets cursor to the upper left corner to start
+            lcd.print(int(dataArray[buttonPushCounter][0])); //prints currently viewed sensor number
+            lcd.print(": ");
+            lcd.print("nV");
+            lcd.print(dataArray[buttonPushCounter][4]); //print Battery Voltage
+            lcd.print("v");
+            lcd.setCursor(0,1); //moves cursor to second line
+            lcd.print("T");
+            lcd.print(dataArray[buttonPushCounter][2]); //print TEMP
+            break;
+        case 12:
+            lcd.setCursor(0,0); //sets cursor to the upper left corner to start
+            lcd.print(int(dataArray[buttonPushCounter][0])); //prints currently viewed sensor number
+            lcd.print(":");
+            lcd.setCursor(0,1); //moves cursor to second line
+            lcd.print("T");
+            lcd.print(dataArray[buttonPushCounter][2]); //print TEMP
+            lcd.print(" H");
+            lcd.print(dataArray[buttonPushCounter][3]); //print Humidity: g/m^3
+            break;
 
-      lcd.setCursor(0,1); //moves cursor to second line
-      lcd.print("fV");
-      lcd.print(int(fonaVoltage));
-      lcd.print("% ");
-      lcd.print("nV");
-      lcd.print(dataArray[buttonPushCounter][4]); //print Battery Voltage
-      lcd.print("v");
+        case 13:
+              lcd.setCursor(0,0); //sets cursor to the upper left corner to start
+              lcd.print(int(dataArray[buttonPushCounter][0])); //prints currently viewed sensor number
+              lcd.print(":");
+              lcd.setCursor(0,1);
+              lcd.print("Count: ");
+              lcd.print(dataArray[buttonPushCounter][2]); //print TEMP
+            break;
+      }
       lcdLastReporting = millis();
     }
   if(lcdBacklightLastReporting + 10000 < millis()) {
