@@ -87,66 +87,10 @@ void setup() {
 }
 
 void loop() {
-  response = "";
   /*==============|| Make GET Request ||==============*/
-  /*
-  if (LastReporting + Reporting < millis()) {
-    lcd.setBacklight(0);
-    radio.sleep(); //disable radio while updating GSM to save a little power
-    lcdprint("fona ON");
-    turnOnFONA(); //turn on board (sets gsmActive to 1)
-    //Serial.print("Flush: "); 
-    FONA_flushInput(); 
-    //Serial.println();
-   // Serial.print("Status: ");
-    if(sendATCommand("AT")) {
-      //Serial.println(response);
-    }
-    //Serial.print("Queitly: ");
-    if(sendATCommand("ATE0")) {
-      //Serial.println(response);
-    } 
-   // Serial.print("Battery: ");
-    if(sendATCommand("AT+CBC")) {
-      //+CBC: 0,66,3935OK
-      delay(1000);
-      //Serial.print(response); Serial.print(": ");
-      fonaVoltage = response.substring(8,11).toFloat(); //changed this to add one more character. 100% was == to 10, not 100.
-      //Serial.print(fonaVoltage); Serial.println("%");
-    }
-    //Serial.print("at+cgatt=0: ");
-    if(sendATCommand("AT+CGATT=0")){ //Attach to GPRS service (1 - attach, 0 - disengage)
-      //Serial.println(response);
-    } 
-   // Serial.print("at+cgatt=1: ");
-    if(sendATCommand("AT+CGATT=1")){ //Attach to GPRS service (1 - attach, 0 - disengage)
-      //Serial.println(response);
-    }
-    //AT+SAPBR - Bearer settings for applications based on IP
-   // Serial.print("Connection Type: GPRS: ");
-    if(sendATCommand("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\"")){ //3 - Set bearer perameters
-      //Serial.println(response);
-    }
-    //Serial.print("Set APN: ");
-    if(sendATCommand("AT+SAPBR=3,1,\"APN\",\"att.mvno\"")){ //sets APN for transaction
-    //if(sendATCommand("AT+SAPBR=3,1,\"APN\",\"epc.tmobile.com\"")){ //sets APN for transaction
-      //Serial.println(response);
-    }
-    //Serial.print("Open Bearer: ");
-    if(sendATCommand("AT+SAPBR=1,1")) { //Open Bearer
-      //Serial.println(response);
-    }
-    lcdprint("doHTTP()");
-    doHTTP();
-    //Serial.print("Disengage GPRS: ");
-    if(sendATCommand("AT+SAPBR=0,1")){ //disengages the GPRS context.
-      //Serial.println(response);
-    }
-    lcdprint("fona off");
-    turnOffFONA(); //turn off module (sets gsmActive to 0)
-    LastReporting = millis();
-  }
-*/
+  //response = "";
+  //doGSMStuff();
+
   if(!gsmActive) {
   /*==============|| RADIO Recieve ||==============*/
     if (radio.receiveDone()) {
@@ -209,19 +153,18 @@ void updateDisplay() {
             lcd.print(" H");
             lcd.print(dataArray[buttonPushCounter][3]); //print Humidity: g/m^3
             break;
-
         case 13:
-              lcd.setCursor(0,0); //sets cursor to the upper left corner to start
-              lcd.print(int(dataArray[buttonPushCounter][0])); //prints currently viewed sensor number
-              lcd.print(":");
-              lcd.setCursor(0,1);
-              lcd.print("Count: ");
-              lcd.print(dataArray[buttonPushCounter][2]); //print TEMP
+            lcd.setCursor(0,0); //sets cursor to the upper left corner to start
+            lcd.print(int(dataArray[buttonPushCounter][0])); //prints currently viewed sensor number
+            lcd.print(":");
+            lcd.setCursor(0,1);
+            lcd.print("Count: ");
+            lcd.print(dataArray[buttonPushCounter][2]); //print TEMP
             break;
       }
       lcdLastReporting = millis();
     }
-  if(lcdBacklightLastReporting + 10000 < millis()) {
+  if(lcdBacklightLastReporting + 30000 < millis()) { //lcd timeout
     lcd.setBacklight(0);
     lcdBacklight = 0;
   }
@@ -266,6 +209,29 @@ void ACKsend(){
     // Serial.print("ok!");
     // else Serial.print("nothing");
   }
+}
+void Blink(byte PIN, int DELAY_MS) {
+  pinMode(PIN, OUTPUT);
+  digitalWrite(PIN,HIGH);
+  delay(DELAY_MS);
+  digitalWrite(PIN,LOW);
+}
+void lcdprint(String toPrint){
+  lcd.clear();
+  lcd.print(toPrint);
+}
+
+
+void FONA_flushInput() {
+    // Read all available serial input to flush pending data.
+    uint16_t timeoutloop = 0;
+    while (timeoutloop++ < 40) {
+        while(fonaSS.available()) {
+            Serial.write(fonaSS.read());
+            timeoutloop = 0;  // If char was received reset the timer
+        }
+        delay(1);
+    }
 }
 void turnOnFONA() { //turns FONA ON
     gsmActive = 1;
@@ -404,25 +370,62 @@ boolean sendURL() { //builds url for Sparkfun GET Request, sends request and wai
   if (complete ==1) return 1;
   else return 0;
 }
-void Blink(byte PIN, int DELAY_MS) {
-  pinMode(PIN, OUTPUT);
-  digitalWrite(PIN,HIGH);
-  delay(DELAY_MS);
-  digitalWrite(PIN,LOW);
-}
-void lcdprint(String toPrint){
-  lcd.clear();
-  lcd.print(toPrint);
-}
-void FONA_flushInput() {
-    // Read all available serial input to flush pending data.
-    uint16_t timeoutloop = 0;
-    while (timeoutloop++ < 40) {
-        while(fonaSS.available()) {
-            Serial.write(fonaSS.read());
-            timeoutloop = 0;  // If char was received reset the timer
-        }
-        delay(1);
+void doGSMStuff() {
+   if (LastReporting + Reporting < millis()) {
+    lcd.setBacklight(0);
+    radio.sleep(); //disable radio while updating GSM to save a little power
+    lcdprint("fona ON");
+    turnOnFONA(); //turn on board (sets gsmActive to 1)
+    //Serial.print("Flush: "); 
+    FONA_flushInput(); 
+    //Serial.println();
+   // Serial.print("Status: ");
+    if(sendATCommand("AT")) {
+      //Serial.println(response);
     }
+    //Serial.print("Queitly: ");
+    if(sendATCommand("ATE0")) {
+      //Serial.println(response);
+    } 
+   // Serial.print("Battery: ");
+    if(sendATCommand("AT+CBC")) {
+      //+CBC: 0,66,3935OK
+      delay(1000);
+      //Serial.print(response); Serial.print(": ");
+      fonaVoltage = response.substring(8,11).toFloat(); //changed this to add one more character. 100% was == to 10, not 100.
+      //Serial.print(fonaVoltage); Serial.println("%");
+    }
+    //Serial.print("at+cgatt=0: ");
+    if(sendATCommand("AT+CGATT=0")){ //Attach to GPRS service (1 - attach, 0 - disengage)
+      //Serial.println(response);
+    } 
+   // Serial.print("at+cgatt=1: ");
+    if(sendATCommand("AT+CGATT=1")){ //Attach to GPRS service (1 - attach, 0 - disengage)
+      //Serial.println(response);
+    }
+    //AT+SAPBR - Bearer settings for applications based on IP
+   // Serial.print("Connection Type: GPRS: ");
+    if(sendATCommand("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\"")){ //3 - Set bearer perameters
+      //Serial.println(response);
+    }
+    //Serial.print("Set APN: ");
+    if(sendATCommand("AT+SAPBR=3,1,\"APN\",\"att.mvno\"")){ //sets APN for transaction
+    //if(sendATCommand("AT+SAPBR=3,1,\"APN\",\"epc.tmobile.com\"")){ //sets APN for transaction
+      //Serial.println(response);
+    }
+    //Serial.print("Open Bearer: ");
+    if(sendATCommand("AT+SAPBR=1,1")) { //Open Bearer
+      //Serial.println(response);
+    }
+    lcdprint("doHTTP()");
+    doHTTP();
+    //Serial.print("Disengage GPRS: ");
+    if(sendATCommand("AT+SAPBR=0,1")){ //disengages the GPRS context.
+      //Serial.println(response);
+    }
+    lcdprint("fona off");
+    turnOffFONA(); //turn off module (sets gsmActive to 0)
+    LastReporting = millis();
+  }
 }
 
