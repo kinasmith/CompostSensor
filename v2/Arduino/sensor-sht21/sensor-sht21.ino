@@ -4,7 +4,7 @@
 #include <Wire.h>
 #include <SHT2x.h>
 
-#define NODEID      14
+#define NODEID      11
 #define NETWORKID   100
 #define GATEWAYID   1
 #define FREQUENCY   RF69_433MHZ //Match this with the version of your Moteino! (others: RF69_433MHZ, RF69_868MHZ)
@@ -14,9 +14,9 @@
 #define ACK_TIME    50  // # of ms to wait for an ack
 #define NB_ATTEMPTS_ACK 5 //number of attempts to try before giving up
 
-int TRANSMITPERIOD = 5000; //transmit a packet to gateway so often (in ms) (one minute)
+int TRANSMITPERIOD = 10000; //transmit a packet to gateway so often (in ms) (one minute)
 int TRANSMITPERIOD_MINUTES = 1; //10 minute total
-int ACK_FAIL_WAIT_PERIOD = 30000; //30 seconds
+int ACK_FAIL_WAIT_PERIOD = 1000; //30 seconds
 float batteryVoltage;
 boolean requestACK = true;
 int numOfSends = 0;
@@ -50,16 +50,17 @@ void loop() {
     bool flag_ACK_received = false; //is the acknowledgement recieved?
     float t = SHT2x.GetTemperature();
     float rh =  SHT2x.GetHumidity();
-    float ah = massOfWater(t,rh);
+    //float ah = massOfWater(t,rh);
     
     payload.nodeId = NODEID;
     payload.uptime = numOfSends;
-    payload.temp = t;
-    payload.humidity = ah;
+    payload.temp = (t * 9.0)/ 5.0 + 32.0;
+    //°C  x  9/5 + 32 = °F
+    payload.humidity = rh;
     payload.voltage = checkBatteryVoltage();
-    Serial.print("T, "); Serial.println(t);
+    Serial.print("T, "); Serial.println(payload.temp);
+    Serial.print("H, "); Serial.println(rh);
     Serial.print("V, "); Serial.println(checkBatteryVoltage());
-/*
     while(nAttempt < NB_ATTEMPTS_ACK && !flag_ACK_received) { //resend package if it doesn't go through
         if (radio.sendWithRetry(GATEWAYID, (const void*)(&payload), sizeof(payload))){
             flag_ACK_received = true;
@@ -75,7 +76,7 @@ void loop() {
           Sleepy::loseSomeTime(ACK_FAIL_WAIT_PERIOD); //wait 30 seconds
         }
     }
-    */
+  
     Blink(LED,3);
     delay(100);
     radio.sleep();

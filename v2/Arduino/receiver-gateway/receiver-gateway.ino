@@ -83,7 +83,7 @@ void setup() {
   radio.initialize(FREQUENCY,NODEID,NETWORKID);
   radio.setHighPower(); //uncomment only for RFM69HW!
   radio.encrypt(KEY);
-  //Serial.println("Setup Done");
+  Serial.println("Setup Done");
 }
 
 void loop() {
@@ -136,12 +136,14 @@ void updateDisplay() {
             lcd.setCursor(0,0); //sets cursor to the upper left corner to start
             lcd.print(int(dataArray[buttonPushCounter][0])); //prints currently viewed sensor number
             lcd.print(": ");
-            lcd.print("nV");
+            lcd.print("V");
             lcd.print(dataArray[buttonPushCounter][4]); //print Battery Voltage
             lcd.print("v");
             lcd.setCursor(0,1); //moves cursor to second line
             lcd.print("T");
             lcd.print(dataArray[buttonPushCounter][2]); //print TEMP
+            lcd.print(" H");
+            lcd.print(dataArray[buttonPushCounter][3]); //print Humidity: g/m^3
             break;
         case 12:
             lcd.setCursor(0,0); //sets cursor to the upper left corner to start
@@ -171,7 +173,7 @@ void updateDisplay() {
 }
 void radioReceive() {
   if(radio.DATALEN != sizeof(Payload)) {
-   // Serial.print("Invalid payload received, not matching Payload struct!");
+    //Serial.print("Invalid payload received, not matching Payload struct!");
   }
   else {
     theData = *(Payload*)radio.DATA; //assume radio.DATA actually contains our struct and not something else
